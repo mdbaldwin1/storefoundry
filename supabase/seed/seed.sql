@@ -1,0 +1,4 @@
+-- Seed intentionally minimal; run after creating a real auth user.
+-- Example:
+-- insert into public.stores (owner_user_id, name, slug, status)
+-- values ('<auth-user-uuid>', 'At Home Apothecary', 'athomeapothacary', 'active');
