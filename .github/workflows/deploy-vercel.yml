@@ -13,6 +13,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_SCOPE: michael-baldwins-projects
@@ -45,4 +46,4 @@ jobs:
         run: npx vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Deploy production to Vercel
-        run: npx vercel deploy --prod --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
+        run: npx vercel deploy --prod --yes --no-wait --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
