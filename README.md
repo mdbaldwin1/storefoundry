@@ -5,6 +5,7 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 ## Stack
 
 - Frontend: Next.js + TypeScript
+- Styling: Tailwind CSS with theme token variables
 - Backend: Supabase (Postgres, Auth, Storage)
 - Payments: Stripe (Billing + Connect)
 - Deployment: Vercel

@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { getPlanConfig, type PlanKey } from "@/config/pricing";
 import { getEnv } from "@/lib/env";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -24,6 +25,8 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const storeId = session.metadata?.store_id;
+    const plan = (session.metadata?.plan as PlanKey | undefined) ?? "starter";
+    const planConfig = getPlanConfig(plan);
 
     if (storeId && session.customer && session.subscription) {
       const supabase = createSupabaseAdminClient();
@@ -31,8 +34,9 @@ export async function POST(request: Request) {
         store_id: storeId,
         stripe_customer_id: String(session.customer),
         stripe_subscription_id: String(session.subscription),
-        plan_key: session.metadata?.plan ?? "starter",
-        status: "active"
+        plan_key: plan,
+        status: "active",
+        platform_fee_bps: planConfig.platformFeeBps
       });
     }
   }

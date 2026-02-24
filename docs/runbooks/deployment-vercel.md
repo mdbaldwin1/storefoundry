@@ -18,6 +18,16 @@
 - `STRIPE_GROWTH_PRICE_ID`
 - `STRIPE_SCALE_PRICE_ID`
 
+## GitHub Actions secrets (for automated deploy workflow)
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+Deploy behavior:
+- Push to `develop` triggers preview deployment.
+- Push to `main` triggers production deployment.
+
 ## DNS and domains
 
 - Platform root domain: `storefoundry.app`
