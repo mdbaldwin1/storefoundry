@@ -16,3 +16,4 @@ All notable changes to this project will be documented in this file.
 - Added root `vercel.json` with Next.js framework override to align Vercel build output expectations.
 - Updated Vercel deploy workflow to run from `apps/web` (`--cwd`) to support monorepo Next.js output paths.
 - Added `apps/web/vercel.json` so Vercel CLI treats the web workspace as Next.js during CI deploys.
+- Set `turbopack.root` in web Next.js config for stable monorepo resolution in CI builds.
