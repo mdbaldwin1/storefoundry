@@ -11,3 +11,4 @@ All notable changes to this project will be documented in this file.
 - Expanded AGENTS policy with explicit UI/componentization/configurability and CI/CD standards.
 - Added Supabase project initialization/linking support with generated config and remote migration push workflow.
 - Added merchant auth and onboarding flow (`signup`, `login`, auth callback, and store bootstrap with server-authenticated owner assignment).
+- Hardened Vercel production deploy workflow with explicit team scope and project-access preflight checks.
