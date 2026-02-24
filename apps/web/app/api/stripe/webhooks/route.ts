@@ -1,0 +1,45 @@
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { getPlanConfig, type PlanKey } from "@/config/pricing";
+import { getStripeEnv } from "@/lib/env";
+import { getStripeClient } from "@/lib/stripe/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+export async function POST(request: Request) {
+  const payload = await request.text();
+  const signature = (await headers()).get("stripe-signature");
+
+  if (!signature) {
+    return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = getStripeClient().webhooks.constructEvent(payload, signature, getStripeEnv().STRIPE_WEBHOOK_SECRET);
+  } catch (error) {
+    return NextResponse.json({ error: `Invalid signature: ${(error as Error).message}` }, { status: 400 });
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const storeId = session.metadata?.store_id;
+    const plan = (session.metadata?.plan as PlanKey | undefined) ?? "starter";
+    const planConfig = getPlanConfig(plan);
+
+    if (storeId && session.customer && session.subscription) {
+      const supabase = createSupabaseAdminClient();
+      await supabase.from("subscriptions").upsert({
+        store_id: storeId,
+        stripe_customer_id: String(session.customer),
+        stripe_subscription_id: String(session.subscription),
+        plan_key: plan,
+        status: "active",
+        platform_fee_bps: planConfig.platformFeeBps
+      });
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
