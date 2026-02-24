@@ -25,8 +25,8 @@
 - `VERCEL_PROJECT_ID`
 
 Deploy behavior:
-- Push to `develop` triggers preview deployment.
 - Push to `main` triggers production deployment.
+- No automatic deployments run for non-`main` branches.
 
 ## DNS and domains
 
