@@ -12,3 +12,4 @@ All notable changes to this project will be documented in this file.
 - Added Supabase project initialization/linking support with generated config and remote migration push workflow.
 - Added merchant auth and onboarding flow (`signup`, `login`, auth callback, and store bootstrap with server-authenticated owner assignment).
 - Hardened Vercel production deploy workflow with explicit team scope and project-access preflight checks.
+- Updated Vercel production deploy workflow to link the project at runtime, removing dependency on static org/project IDs.
