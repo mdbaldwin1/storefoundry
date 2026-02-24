@@ -27,6 +27,7 @@
 Deploy behavior:
 - Push to `main` triggers production deployment.
 - No automatic deployments run for non-`main` branches.
+- Workflow targets Vercel scope `michael-baldwins-projects`.
 
 ## DNS and domains
 
