@@ -21,8 +21,6 @@
 ## GitHub Actions secrets (for automated deploy workflow)
 
 - `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
 
 Deploy behavior:
 - Push to `main` triggers production deployment.
