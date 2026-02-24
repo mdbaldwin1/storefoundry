@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getEnv } from "@/lib/env";
+import { getCoreEnv, getStripeEnv } from "@/lib/env";
 import { getPlanConfig, type PlanKey } from "@/config/pricing";
 import { getStripeClient } from "@/lib/stripe/server";
 
@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
   }
 
   const stripe = getStripeClient();
-  const env = getEnv();
+  const coreEnv = getCoreEnv();
+  const stripeEnv = getStripeEnv();
   const planConfig = getPlanConfig(payload.data.plan as PlanKey);
 
   if (!planConfig.stripePriceEnvKey) {
@@ -28,14 +29,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const price = env[planConfig.stripePriceEnvKey];
+  const price = stripeEnv[planConfig.stripePriceEnvKey];
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price, quantity: 1 }],
     customer_email: payload.data.customerEmail,
-    success_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard?billing=success`,
-    cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard?billing=cancelled`,
+    success_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=success`,
+    cancel_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=cancelled`,
     metadata: {
       store_id: payload.data.storeId,
       plan: payload.data.plan,

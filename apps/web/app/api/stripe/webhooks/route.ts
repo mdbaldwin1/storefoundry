@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getPlanConfig, type PlanKey } from "@/config/pricing";
-import { getEnv } from "@/lib/env";
+import { getStripeEnv } from "@/lib/env";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
-    event = getStripeClient().webhooks.constructEvent(payload, signature, getEnv().STRIPE_WEBHOOK_SECRET);
+    event = getStripeClient().webhooks.constructEvent(payload, signature, getStripeEnv().STRIPE_WEBHOOK_SECRET);
   } catch (error) {
     return NextResponse.json({ error: `Invalid signature: ${(error as Error).message}` }, { status: 400 });
   }

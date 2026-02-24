@@ -1,11 +1,11 @@
 import Stripe from "stripe";
-import { getEnv } from "@/lib/env";
+import { getStripeEnv } from "@/lib/env";
 
 let stripe: Stripe | null = null;
 
 export function getStripeClient() {
   if (!stripe) {
-    stripe = new Stripe(getEnv().STRIPE_SECRET_KEY, {
+    stripe = new Stripe(getStripeEnv().STRIPE_SECRET_KEY, {
       apiVersion: "2025-10-29.clover"
     });
   }
