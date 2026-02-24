@@ -21,3 +21,4 @@ All notable changes to this project will be documented in this file.
 - Updated deploy workflow to run `vercel build` with `VERCEL=1` so Next.js selects the Vercel-specific monorepo root path.
 - Switched production Next.js builds to webpack (`next build --webpack`) to avoid Turbopack monorepo resolver failures in CI.
 - Updated Vercel prebuilt pipeline to build with `--prod` so deploy target matches production environment.
+- Simplified production deploy to direct `vercel deploy --prod` (no `--prebuilt`) to avoid prebuilt runtime path issues.
