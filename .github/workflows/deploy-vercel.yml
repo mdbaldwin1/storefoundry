@@ -44,8 +44,5 @@ jobs:
       - name: Pull Vercel environment (production)
         run: npx vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
-      - name: Build Vercel output
-        run: VERCEL=1 npx vercel build --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
-
       - name: Deploy production to Vercel
-        run: npx vercel deploy --prebuilt --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
+        run: npx vercel deploy --prod --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
