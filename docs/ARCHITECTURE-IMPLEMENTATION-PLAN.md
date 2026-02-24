@@ -8,7 +8,7 @@ Build a multi-tenant ecommerce platform for small makers that provides:
 - Product catalog and inventory management
 - Checkout and order management
 - Stripe-based payment processing
-- Subscription billing for platform revenue (no platform cut of sales)
+- Hybrid monetization: free tier with platform transaction fee, paid tiers with reduced or zero fee
 
 ## Core Stack
 
@@ -36,12 +36,10 @@ Build a multi-tenant ecommerce platform for small makers that provides:
 - `stores`: id, owner_user_id, name, slug, status
 - `store_domains`: id, store_id, domain, verified_at, is_primary
 - `store_branding`: store_id, logo_url, theme_json
-- `products`: id, store_id, title, description, price_cents, status
-- `product_variants`: id, product_id, sku, price_cents, inventory_qty
-- `orders`: id, store_id, customer_email, currency, subtotal_cents, total_cents, status
-- `order_items`: id, order_id, product_id, variant_id, qty, unit_price_cents
-- `payments`: id, order_id, stripe_payment_intent_id, status, amount_cents
-- `subscriptions`: id, store_id, stripe_customer_id, stripe_subscription_id, plan_key, status
+- `products`: id, store_id, title, description, price_cents, inventory_qty, status
+- `orders`: id, store_id, customer_email, currency, subtotal_cents, total_cents, status, platform_fee_bps, platform_fee_cents
+- `order_items`: id, order_id, product_id, quantity, unit_price_cents
+- `subscriptions`: id, store_id, stripe_customer_id, stripe_subscription_id, plan_key, status, platform_fee_bps
 
 ## Integrations
 
@@ -94,12 +92,15 @@ Build a multi-tenant ecommerce platform for small makers that provides:
 
 ## Revenue Strategy Recommendation
 
-- Subscription-only pricing, no take rate on GMV.
-- Keep Stripe direct processing fees separate and transparent.
+- Use a hybrid model:
+  - Free tier: no monthly fee, platform fee on transactions
+  - Paid tiers: monthly subscription with reduced or zero platform fee
+- Keep Stripe processing fees separate and transparent in merchant reporting.
 - Suggested initial tiers:
-  - Starter: core store + checkout + inventory
-  - Growth: custom domain + analytics + automations
-  - Scale: multi-user roles + priority support
+  - Free: baseline storefront + checkout, higher platform fee
+  - Starter: low monthly fee, reduced platform fee
+  - Growth: higher monthly fee, optional zero platform fee
+  - Scale: premium monthly fee, zero platform fee, multi-user roles and priority support
 
 ## Immediate Next Tasks
 
