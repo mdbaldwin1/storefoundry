@@ -22,3 +22,7 @@ All notable changes to this project will be documented in this file.
 - Switched production Next.js builds to webpack (`next build --webpack`) to avoid Turbopack monorepo resolver failures in CI.
 - Updated Vercel prebuilt pipeline to build with `--prod` so deploy target matches production environment.
 - Simplified production deploy to direct `vercel deploy --prod` (no `--prebuilt`) to avoid prebuilt runtime path issues.
+- Fixed Vercel production build resolution by adding app-scoped `apps/web/tsconfig.base.json` and wiring `apps/web/tsconfig.json` to extend it.
+- Updated production deploy workflow to wait for final Vercel deploy result (removed `--no-wait`) while retaining workflow timeout guardrails.
+- Replaced dashboard placeholder with authenticated tenant dashboard for product catalog and inventory management.
+- Hardened `/api/products` to derive store ownership from authenticated session, removing client-controlled `storeId` and adding update support.
