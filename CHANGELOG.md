@@ -15,3 +15,4 @@ All notable changes to this project will be documented in this file.
 - Updated Vercel production deploy workflow to link the project at runtime, removing dependency on static org/project IDs.
 - Added root `vercel.json` with Next.js framework override to align Vercel build output expectations.
 - Updated Vercel deploy workflow to run from `apps/web` (`--cwd`) to support monorepo Next.js output paths.
+- Added `apps/web/vercel.json` so Vercel CLI treats the web workspace as Next.js during CI deploys.
