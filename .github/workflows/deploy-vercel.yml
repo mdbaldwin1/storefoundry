@@ -39,13 +39,13 @@ jobs:
         run: npx vercel project inspect storefoundry --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Link repository to Vercel project
-        run: npx vercel link --project storefoundry --scope="$VERCEL_SCOPE" --yes --token="$VERCEL_TOKEN"
+        run: npx vercel link --project storefoundry --scope="$VERCEL_SCOPE" --yes --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Pull Vercel environment (production)
-        run: npx vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+        run: npx vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Build Vercel output
-        run: npx vercel build --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+        run: npx vercel build --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Deploy production to Vercel
-        run: npx vercel deploy --prebuilt --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+        run: npx vercel deploy --prebuilt --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
