@@ -13,3 +13,4 @@ All notable changes to this project will be documented in this file.
 - Added merchant auth and onboarding flow (`signup`, `login`, auth callback, and store bootstrap with server-authenticated owner assignment).
 - Hardened Vercel production deploy workflow with explicit team scope and project-access preflight checks.
 - Updated Vercel production deploy workflow to link the project at runtime, removing dependency on static org/project IDs.
+- Added root `vercel.json` with Next.js framework override to align Vercel build output expectations.
