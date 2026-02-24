@@ -18,3 +18,4 @@ All notable changes to this project will be documented in this file.
 - Added `apps/web/vercel.json` so Vercel CLI treats the web workspace as Next.js during CI deploys.
 - Set `turbopack.root` in web Next.js config for stable monorepo resolution in CI builds.
 - Made `turbopack.root` environment-aware (Vercel workspace root vs local monorepo root).
+- Updated deploy workflow to run `vercel build` with `VERCEL=1` so Next.js selects the Vercel-specific monorepo root path.

@@ -45,7 +45,7 @@ jobs:
         run: npx vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Build Vercel output
-        run: npx vercel build --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
+        run: VERCEL=1 npx vercel build --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
 
       - name: Deploy production to Vercel
         run: npx vercel deploy --prebuilt --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN" --cwd apps/web
