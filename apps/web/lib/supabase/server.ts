@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { getCoreEnv } from "@/lib/env";
+import { getPublicEnv } from "@/lib/env";
 
 export async function createSupabaseServerClient() {
-  const env = getCoreEnv();
+  const env = getPublicEnv();
   const cookieStore = await cookies();
 
   return createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
@@ -12,9 +12,14 @@ export async function createSupabaseServerClient() {
         return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
-        });
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Server Components can read cookies but may not be allowed to write them.
+          // Supabase recommends ignoring set errors in this context.
+        }
       }
     }
   });

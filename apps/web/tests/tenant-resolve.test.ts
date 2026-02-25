@@ -3,11 +3,11 @@ import { resolveTenantLookup } from "@/lib/tenant/resolve";
 
 describe("resolveTenantLookup", () => {
   test("returns platform for root host", () => {
-    expect(resolveTenantLookup("storefoundry.app")).toEqual({ type: "platform", key: null });
+    expect(resolveTenantLookup("myrivo.app")).toEqual({ type: "platform", key: null });
   });
 
   test("returns slug for subdomain host", () => {
-    expect(resolveTenantLookup("olive.storefoundry.app")).toEqual({ type: "slug", key: "olive" });
+    expect(resolveTenantLookup("olive.myrivo.app")).toEqual({ type: "slug", key: "olive" });
   });
 
   test("returns domain for custom host", () => {

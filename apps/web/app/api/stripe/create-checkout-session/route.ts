@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getCoreEnv, getStripeEnv } from "@/lib/env";
+import { getAppUrl, isStripeStubMode } from "@/lib/env";
 import { getPlanConfig, type PlanKey } from "@/config/pricing";
-import { getStripeClient } from "@/lib/stripe/server";
+import { createSubscriptionCheckoutSession } from "@/lib/billing/create-checkout-session";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const payloadSchema = z.object({
@@ -11,6 +12,12 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = payloadSchema.safeParse(await request.json());
 
   if (!payload.success) {
@@ -49,9 +56,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No store found for account" }, { status: 404 });
   }
 
-  const stripe = getStripeClient();
-  const coreEnv = getCoreEnv();
-  const stripeEnv = getStripeEnv();
   const planConfig = getPlanConfig(payload.data.plan as PlanKey);
 
   if (!planConfig.stripePriceEnvKey) {
@@ -61,7 +65,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const price = stripeEnv[planConfig.stripePriceEnvKey];
+  const appUrl = getAppUrl();
+  if (isStripeStubMode()) {
+    const stubCustomerId = `stub_cus_${user.id.replaceAll("-", "")}`;
+    const stubSubscriptionId = `stub_sub_${ownedStore.id.replaceAll("-", "")}_${payload.data.plan}`;
+    const { error: stubUpsertError } = await supabase.from("subscriptions").upsert(
+      {
+        store_id: ownedStore.id,
+        stripe_customer_id: stubCustomerId,
+        stripe_subscription_id: stubSubscriptionId,
+        plan_key: payload.data.plan,
+        status: "active",
+        platform_fee_bps: planConfig.platformFeeBps
+      },
+      { onConflict: "store_id" }
+    );
+
+    if (stubUpsertError) {
+      return NextResponse.json({ error: stubUpsertError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ checkoutUrl: `${appUrl}/dashboard?billing=stubbed&plan=${payload.data.plan}` });
+  }
+
   const { data: existingSubscription, error: existingSubscriptionError } = await supabase
     .from("subscriptions")
     .select("stripe_customer_id")
@@ -72,37 +98,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: existingSubscriptionError.message }, { status: 500 });
   }
 
-  const customerId =
-    existingSubscription?.stripe_customer_id ||
-    (
-      await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          owner_user_id: user.id,
-          store_id: ownedStore.id
-        }
-      })
-    ).id;
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price, quantity: 1 }],
-    customer: customerId,
-    success_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=success`,
-    cancel_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=cancelled`,
-    metadata: {
-      store_id: ownedStore.id,
-      plan: payload.data.plan,
-      platform_fee_bps: String(planConfig.platformFeeBps)
-    },
-    subscription_data: {
-      metadata: {
-        store_id: ownedStore.id,
-        plan: payload.data.plan,
-        platform_fee_bps: String(planConfig.platformFeeBps)
-      }
-    }
+  const checkoutUrl = await createSubscriptionCheckoutSession({
+    storeId: ownedStore.id,
+    userId: user.id,
+    userEmail: user.email,
+    plan: payload.data.plan as PlanKey,
+    existingStripeCustomerId: existingSubscription?.stripe_customer_id
   });
 
-  return NextResponse.json({ checkoutUrl: session.url });
+  return NextResponse.json({ checkoutUrl });
 }

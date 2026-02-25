@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Storefoundry",
+  title: "Myrivo",
   description: "Commerce platform for independent makers"
 };
 
