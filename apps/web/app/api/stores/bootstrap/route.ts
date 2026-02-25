@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
+import { checkRateLimit } from "@/lib/security/rate-limit";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { isValidStoreSlug, normalizeStoreSlug } from "@/lib/stores/slug";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -10,6 +13,22 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
+  const rateLimitResponse = checkRateLimit(request, {
+    key: "store-bootstrap",
+    limit: 10,
+    windowMs: 60_000
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   const payload = payloadSchema.safeParse(await request.json());
 
   if (!payload.success) {
@@ -32,6 +51,22 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createSupabaseAdminClient();
+  const { data: existingStore, error: existingStoreError } = await supabase
+    .from("stores")
+    .select("id")
+    .eq("owner_user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingStoreError) {
+    return NextResponse.json({ error: existingStoreError.message }, { status: 500 });
+  }
+
+  if (existingStore) {
+    return NextResponse.json({ error: "Store already exists for this account" }, { status: 409 });
+  }
+
   const { data, error } = await supabase
     .from("stores")
     .insert({
@@ -50,6 +85,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: data.id,
+    actorUserId: user.id,
+    action: "create",
+    entity: "store",
+    entityId: data.id,
+    metadata: { slug: data.slug }
+  });
 
   return NextResponse.json({ store: data }, { status: 201 });
 }

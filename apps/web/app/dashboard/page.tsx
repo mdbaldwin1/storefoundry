@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
-import { PageShell } from "@/components/layout/page-shell";
+import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,28 +11,19 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    return null;
   }
 
-  const { data: store, error: storeError } = await supabase
-    .from("stores")
-    .select("id,name,slug,status")
-    .eq("owner_user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  if (storeError) {
-    throw new Error(storeError.message);
-  }
+  const bundle = await getOwnedStoreBundle(user.id);
+  const store = bundle?.store;
 
   if (!store) {
-    redirect("/onboarding");
+    return null;
   }
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id,title,description,price_cents,inventory_qty,status,created_at")
+    .select("id,title,description,sku,image_url,is_featured,price_cents,inventory_qty,status,created_at")
     .eq("store_id", store.id)
     .order("created_at", { ascending: false });
 
@@ -41,9 +31,23 @@ export default async function DashboardPage() {
     throw new Error(productsError.message);
   }
 
+  const { data: recentOrders, error: ordersError } = await supabase
+    .from("orders")
+    .select("id,total_cents,status,created_at")
+    .eq("store_id", store.id)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  if (ordersError) {
+    throw new Error(ordersError.message);
+  }
+
   return (
-    <PageShell>
-      <DashboardOverview store={store} products={products ?? []} />
-    </PageShell>
+    <DashboardOverview
+      store={store}
+      products={products ?? []}
+      recentOrders={recentOrders ?? []}
+      subscription={bundle?.subscription ?? null}
+    />
   );
 }

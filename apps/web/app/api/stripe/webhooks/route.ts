@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getPlanConfig, getPlanKeyByStripePriceId, type PlanKey } from "@/config/pricing";
-import { getStripeEnv } from "@/lib/env";
+import { getStripeEnv, isStripeStubMode } from "@/lib/env";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -46,6 +46,10 @@ async function upsertSubscriptionFromStripe(
 }
 
 export async function POST(request: Request) {
+  if (isStripeStubMode()) {
+    return NextResponse.json({ received: true, mode: "stub" });
+  }
+
   const payload = await request.text();
   const signature = (await headers()).get("stripe-signature");
 

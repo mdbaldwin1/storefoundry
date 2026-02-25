@@ -22,12 +22,20 @@ export function HeroSection() {
           </li>
         ))}
       </ul>
-      <Link
-        href="/dashboard"
-        className="mt-8 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-      >
-        Open Merchant Dashboard
-      </Link>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+        >
+          Open Merchant Dashboard
+        </Link>
+        <Link
+          href="/signup"
+          className="inline-flex items-center rounded-md border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:bg-muted/40"
+        >
+          Create Account
+        </Link>
+      </div>
     </section>
   );
 }

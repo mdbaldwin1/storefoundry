@@ -15,6 +15,22 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
+  const { data: existingStore, error: existingStoreError } = await supabase
+    .from("stores")
+    .select("id")
+    .eq("owner_user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingStoreError) {
+    throw new Error(existingStoreError.message);
+  }
+
+  if (existingStore) {
+    redirect("/dashboard");
+  }
+
   return (
     <PageShell maxWidthClassName="max-w-xl">
       <StoreBootstrapForm />
