@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 
@@ -71,6 +72,20 @@ export async function PUT(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: bundle.store.id,
+    actorUserId: user.id,
+    action: "update",
+    entity: "store_settings",
+    entityId: bundle.store.id,
+    metadata: {
+      supportEmail: payload.data.supportEmail ?? null,
+      hasAnnouncement: Boolean(payload.data.announcement),
+      hasShippingPolicy: Boolean(payload.data.shippingPolicy),
+      hasReturnPolicy: Boolean(payload.data.returnPolicy)
+    }
+  });
 
   return NextResponse.json({ settings: data });
 }

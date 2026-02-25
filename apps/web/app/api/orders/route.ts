@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 
@@ -95,6 +96,15 @@ export async function PATCH(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: bundle.store.id,
+    actorUserId: user.id,
+    action: "update",
+    entity: "order",
+    entityId: payload.data.orderId,
+    metadata: updates
+  });
 
   return NextResponse.json({ order: data });
 }

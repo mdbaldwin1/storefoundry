@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const createProductSchema = z.object({
@@ -50,7 +51,7 @@ async function resolveOwnedStoreId() {
     return { error: NextResponse.json({ error: "No store found for account" }, { status: 404 }) } as const;
   }
 
-  return { supabase, storeId: store.id } as const;
+  return { supabase, storeId: store.id, userId: user.id } as const;
 }
 
 export async function GET() {
@@ -107,6 +108,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await logAuditEvent({
+    storeId: resolved.storeId,
+    actorUserId: resolved.userId,
+    action: "create",
+    entity: "product",
+    entityId: data.id,
+    metadata: {
+      title: data.title,
+      priceCents: data.price_cents,
+      status: data.status
+    }
+  });
+
   return NextResponse.json({ product: data }, { status: 201 });
 }
 
@@ -149,6 +163,15 @@ export async function PATCH(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: resolved.storeId,
+    actorUserId: resolved.userId,
+    action: "update",
+    entity: "product",
+    entityId: payload.data.productId,
+    metadata: updates
+  });
 
   return NextResponse.json({ product: data });
 }

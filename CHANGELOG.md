@@ -59,3 +59,8 @@ All notable changes to this project will be documented in this file.
 - Hardened promo redemption by moving final promo validation/redemption into transactional checkout RPC for race-safe discount application.
 - Added promo preview endpoint and storefront apply flow for pre-checkout discount visibility.
 - Added `dashboard/insights` with revenue trend visualization and operational stock/revenue metrics.
+- Added API rate limiting for checkout and promo preview endpoints to reduce abuse/spam risk.
+- Added audit events model and non-blocking audit writes for high-impact merchant operations (store/product/promo/order/inventory changes).
+- Added Playwright E2E harness with full merchant journey test and local-server-aware configuration.
+- Added dashboard loading/error states and storefront loading state for better resilience and UX continuity.
+- Added operational docs: env matrix, release runbook, and incident playbook.

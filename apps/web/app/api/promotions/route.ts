@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -51,7 +52,7 @@ async function getStoreId() {
     return { error: NextResponse.json({ error: "No store found for account" }, { status: 404 }) } as const;
   }
 
-  return { supabase, storeId: bundle.store.id } as const;
+  return { supabase, storeId: bundle.store.id, userId: user.id } as const;
 }
 
 export async function GET() {
@@ -110,6 +111,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await logAuditEvent({
+    storeId: resolved.storeId,
+    actorUserId: resolved.userId,
+    action: "create",
+    entity: "promotion",
+    entityId: data.id,
+    metadata: {
+      code: data.code,
+      discountType: data.discount_type,
+      discountValue: data.discount_value
+    }
+  });
+
   return NextResponse.json({ promotion: data }, { status: 201 });
 }
 
@@ -148,6 +162,15 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await logAuditEvent({
+    storeId: resolved.storeId,
+    actorUserId: resolved.userId,
+    action: "update",
+    entity: "promotion",
+    entityId: payload.data.promotionId,
+    metadata: updates
+  });
+
   return NextResponse.json({ promotion: data });
 }
 
@@ -173,6 +196,14 @@ export async function DELETE(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: resolved.storeId,
+    actorUserId: resolved.userId,
+    action: "delete",
+    entity: "promotion",
+    entityId: payload.data.promotionId
+  });
 
   return NextResponse.json({ deleted: true });
 }

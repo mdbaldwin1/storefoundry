@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { calculateDiscountCents } from "@/lib/promotions/calculate-discount";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const payloadSchema = z.object({
@@ -10,6 +11,16 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = checkRateLimit(request, {
+    key: "promo-preview",
+    limit: 60,
+    windowMs: 60_000
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   const payload = payloadSchema.safeParse(await request.json());
 
   if (!payload.success) {

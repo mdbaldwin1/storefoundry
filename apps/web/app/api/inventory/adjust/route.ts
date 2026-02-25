@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logAuditEvent } from "@/lib/audit/log";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -76,6 +77,19 @@ export async function POST(request: NextRequest) {
   if (movementError) {
     return NextResponse.json({ error: movementError.message }, { status: 500 });
   }
+
+  await logAuditEvent({
+    storeId: bundle.store.id,
+    actorUserId: user.id,
+    action: "adjust",
+    entity: "inventory",
+    entityId: product.id,
+    metadata: {
+      reason: payload.data.reason,
+      deltaQty: payload.data.deltaQty,
+      nextInventory
+    }
+  });
 
   return NextResponse.json({ product: updatedProduct });
 }
