@@ -26,3 +26,6 @@ All notable changes to this project will be documented in this file.
 - Updated production deploy workflow to wait for final Vercel deploy result (removed `--no-wait`) while retaining workflow timeout guardrails.
 - Replaced dashboard placeholder with authenticated tenant dashboard for product catalog and inventory management.
 - Hardened `/api/products` to derive store ownership from authenticated session, removing client-controlled `storeId` and adding update support.
+- Hardened Stripe checkout creation to use authenticated owner/store resolution and Stripe customer reuse instead of client-provided customer/store identifiers.
+- Expanded Stripe webhook handling for checkout completion plus subscription create/update/delete lifecycle synchronization.
+- Added pricing utility for Stripe price ID to plan mapping, with tests, to keep plan/fee behavior configurable and deterministic.
