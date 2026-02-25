@@ -9,7 +9,7 @@ const highlights = [
 export function HeroSection() {
   return (
     <section className="rounded-lg border border-border bg-card/80 p-8 shadow-sm backdrop-blur sm:p-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Storefoundry</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Myrivo</p>
       <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">Build a branded commerce site in minutes.</h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Multi-tenant commerce for makers who want full control over brand, domain, catalog, and monetization.

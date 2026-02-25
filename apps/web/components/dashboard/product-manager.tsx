@@ -2,6 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataStat } from "@/components/ui/data-stat";
+import { FeedbackMessage } from "@/components/ui/feedback-message";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { ProductRecord } from "@/types/database";
 
 type ProductManagerProps = {
@@ -181,133 +192,85 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
         <h2 className="text-2xl font-semibold">Catalog and Inventory</h2>
         <p className="text-sm text-muted-foreground">Add products, track stock, and update listing status.</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="space-y-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Search</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Find product"
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status Filter</span>
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value as "all" | ProductRecord["status"])}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            >
+          <FormField label="Search" labelClassName="text-xs uppercase tracking-wide text-muted-foreground">
+            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find product" />
+          </FormField>
+          <FormField label="Status Filter" labelClassName="text-xs uppercase tracking-wide text-muted-foreground">
+            <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "all" | ProductRecord["status"])}>
               <option value="all">All statuses</option>
               {statusOptions.map((status) => (
                 <option key={status} value={status}>
                   {status}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </FormField>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-md border border-border bg-muted/45 px-3 py-2 text-sm">Total products: {stats.total}</div>
-          <div className="rounded-md border border-border bg-muted/45 px-3 py-2 text-sm">Active: {stats.activeCount}</div>
-          <div className="rounded-md border border-border bg-muted/45 px-3 py-2 text-sm">Low stock (&lt;10): {stats.lowStockCount}</div>
+          <DataStat label="Total products" value={String(stats.total)} />
+          <DataStat label="Active" value={String(stats.activeCount)} />
+          <DataStat label="Low stock (<10)" value={String(stats.lowStockCount)} />
         </div>
       </header>
 
-      <form onSubmit={createProduct} className="grid gap-3 rounded-md border border-border p-4 sm:grid-cols-2">
-        <label className="space-y-1 sm:col-span-2">
-          <span className="text-sm font-medium">Title</span>
-          <input
-            required
-            minLength={2}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="space-y-1 sm:col-span-2">
-          <span className="text-sm font-medium">Description</span>
-          <textarea
-            required
-            minLength={1}
-            rows={3}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="space-y-1">
-          <span className="text-sm font-medium">SKU</span>
-          <input
-            value={sku}
-            onChange={(event) => setSku(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="space-y-1">
-          <span className="text-sm font-medium">Image URL</span>
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(event) => setImageUrl(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="space-y-1">
-          <span className="text-sm font-medium">Price (USD)</span>
-          <input
-            required
-            inputMode="decimal"
-            value={priceDollars}
-            onChange={(event) => setPriceDollars(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="space-y-1">
-          <span className="text-sm font-medium">Inventory qty</span>
-          <input
-            required
-            inputMode="numeric"
-            value={inventoryQty}
-            onChange={(event) => setInventoryQty(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="flex items-center gap-2 sm:col-span-2">
-          <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
-          <span className="text-sm font-medium">Featured product</span>
-        </label>
-        {error ? <p className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
-        <button
-          disabled={pending}
-          type="submit"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60 sm:col-span-2"
-        >
-          {pending ? "Saving..." : "Add product"}
-        </button>
-      </form>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Add Product</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={createProduct} className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Title" className="sm:col-span-2">
+              <Input required minLength={2} value={title} onChange={(event) => setTitle(event.target.value)} />
+            </FormField>
+            <FormField label="Description" className="sm:col-span-2">
+              <Textarea required minLength={1} rows={3} value={description} onChange={(event) => setDescription(event.target.value)} />
+            </FormField>
+            <FormField label="SKU">
+              <Input value={sku} onChange={(event) => setSku(event.target.value)} />
+            </FormField>
+            <FormField label="Image URL">
+              <Input type="url" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} />
+            </FormField>
+            <FormField label="Price (USD)">
+              <Input required inputMode="decimal" value={priceDollars} onChange={(event) => setPriceDollars(event.target.value)} />
+            </FormField>
+            <FormField label="Inventory qty">
+              <Input required inputMode="numeric" value={inventoryQty} onChange={(event) => setInventoryQty(event.target.value)} />
+            </FormField>
+            <label className="flex items-center gap-2 sm:col-span-2">
+              <Checkbox checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
+              <span className="text-sm font-medium">Featured product</span>
+            </label>
+            <FeedbackMessage type="error" message={error} className="sm:col-span-2" />
+            <Button disabled={pending} type="submit" className="sm:col-span-2">
+              {pending ? "Saving..." : "Add product"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       <div className="overflow-x-auto rounded-md border border-border">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-muted/45">
-            <tr>
-              <th className="px-3 py-2 font-medium">Title</th>
-              <th className="px-3 py-2 font-medium">Status</th>
-              <th className="px-3 py-2 font-medium">Price</th>
-              <th className="px-3 py-2 font-medium">Inventory</th>
-              <th className="px-3 py-2 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader className="bg-muted/45">
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Inventory</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {visibleProducts.length === 0 ? (
-              <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
+              <TableRow>
+                <TableCell className="py-3 text-muted-foreground" colSpan={5}>
                   No products match this filter.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               visibleProducts.map((product) => (
-                <tr key={product.id} className="border-t border-border">
-                  <td className="px-3 py-2">
+                <TableRow key={product.id}>
+                  <TableCell>
                     <div className="flex items-start gap-2">
                       {product.image_url ? (
                         <Image
@@ -324,31 +287,28 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
                         <p className="text-xs text-muted-foreground">{product.sku ? `SKU: ${product.sku}` : "No SKU"}</p>
                         <p className="text-xs text-muted-foreground">{product.description}</p>
                         {product.is_featured ? (
-                          <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                            featured
-                          </span>
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">featured</Badge>
                         ) : null}
                       </div>
                     </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <select
+                  </TableCell>
+                  <TableCell>
+                    <Select
                       value={product.status}
                       onChange={(event) =>
                         void updateProduct(product.id, { status: event.target.value as ProductRecord["status"] })
                       }
-                      className="rounded-md border border-border bg-background px-2 py-1 text-sm"
                     >
                       {statusOptions.map((status) => (
                         <option key={status} value={status}>
                           {status}
                         </option>
                       ))}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2">${(product.price_cents / 100).toFixed(2)}</td>
-                  <td className="px-3 py-2">
-                    <input
+                    </Select>
+                  </TableCell>
+                  <TableCell>${(product.price_cents / 100).toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Input
                       inputMode="numeric"
                       value={String(product.inventory_qty)}
                       onChange={(event) => {
@@ -359,50 +319,58 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
                         );
                       }}
                       onBlur={() => void updateProduct(product.id, { inventory_qty: product.inventory_qty })}
-                      className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm"
+                      className="h-8 w-24 px-2 py-1"
                     />
-                  </td>
-                  <td className="px-3 py-2">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      <Button
                         type="button"
                         onClick={() =>
                           void updateProduct(product.id, {
                             status: product.status === "archived" ? "draft" : "archived"
                           })
                         }
-                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
                       >
                         {product.status === "archived" ? "Unarchive" : "Archive"}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => void adjustInventory(product.id, 10, "restock", "Quick restock +10")}
-                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
                       >
                         +10 stock
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => void adjustInventory(product.id, -1, "adjustment", "Quick decrement -1")}
-                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
                       >
                         -1 stock
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => void updateProduct(product.id, { is_featured: !product.is_featured })}
-                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
                       >
                         {product.is_featured ? "Unfeature" : "Feature"}
-                      </button>
+                      </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

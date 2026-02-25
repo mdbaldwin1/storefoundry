@@ -1,6 +1,6 @@
-# Storefoundry
+# Myrivo
 
-Storefoundry is a multi-tenant commerce platform for independent makers and small shops.
+Myrivo is a multi-tenant commerce platform for independent makers and small shops.
 
 ## Stack
 
@@ -70,10 +70,10 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 - `npm run typecheck`
 - `npm run test`
 - `npm run build`
-- `npm run e2e --workspace=@storefoundry/web`
+- `npm run e2e --workspace=@myrivo/web`
 
 ## E2E testing notes
 
 - E2E defaults to your existing local dev server (`http://127.0.0.1:3000`).
 - To let Playwright manage its own server, run with:
-  - `E2E_MANAGED_SERVER=true npm run e2e --workspace=@storefoundry/web`
+  - `E2E_MANAGED_SERVER=true npm run e2e --workspace=@myrivo/web`

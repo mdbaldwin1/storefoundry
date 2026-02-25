@@ -10,7 +10,7 @@ describe("storefront theme style", () => {
 
   test("falls back to defaults for invalid colors", () => {
     const style = buildStorefrontThemeStyle({ primaryColor: "blue", accentColor: "#123" }) as Record<string, string>;
-    expect(style["--storefront-primary"]).toBe("#8C4218");
-    expect(style["--storefront-accent"]).toBe("#CC5A2A");
+    expect(style["--storefront-primary"]).toBe("#0F7B84");
+    expect(style["--storefront-accent"]).toBe("#1AA3A8");
   });
 });

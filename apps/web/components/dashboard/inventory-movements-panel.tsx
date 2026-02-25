@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type InventoryMovement = {
   id: string;
@@ -55,11 +57,12 @@ export function InventoryMovementsPanel() {
   }, []);
 
   return (
-    <section className="space-y-3 rounded-md border border-border bg-muted/30 p-4">
-      <header>
-        <h3 className="text-lg font-semibold">Inventory Ledger</h3>
+    <Card className="bg-muted/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">Inventory Ledger</CardTitle>
         <p className="text-xs text-muted-foreground">Last 50 inventory movements for audit and support workflows.</p>
-      </header>
+      </CardHeader>
+      <CardContent className="space-y-3">
 
       {loading ? <p className="text-sm text-muted-foreground">Loading ledger...</p> : null}
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -80,7 +83,7 @@ export function InventoryMovementsPanel() {
                   >
                     {movement.delta_qty > 0 ? `+${movement.delta_qty}` : movement.delta_qty}
                   </span>
-                  <span className="rounded-full border border-border px-2 py-0.5 text-xs">{movement.reason}</span>
+                  <Badge variant="outline">{movement.reason}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {new Date(movement.created_at).toLocaleString()}
@@ -92,6 +95,7 @@ export function InventoryMovementsPanel() {
           )}
         </ul>
       ) : null}
-    </section>
+      </CardContent>
+    </Card>
   );
 }

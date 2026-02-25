@@ -1,5 +1,7 @@
 import { ProductManager } from "@/components/dashboard/product-manager";
 import { SubscriptionPlanSelector } from "@/components/dashboard/subscription-plan-selector";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataStat } from "@/components/ui/data-stat";
 import { OrderRecord, ProductRecord, StoreRecord } from "@/types/database";
 import type { PlanKey, SubscriptionStatus } from "@/types/database";
 
@@ -26,31 +28,21 @@ export function DashboardOverview({ store, products, recentOrders, subscription 
 
   return (
     <section className="space-y-6">
-      <header className="rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
-        <h1 className="text-3xl font-semibold">{store.name}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Manage catalog and inventory for <span className="font-medium text-foreground">{store.slug}</span>.
-        </p>
-        <div className="mt-4 inline-flex rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Store status: {store.status}
-        </div>
-      </header>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl">Overview</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Manage catalog and inventory for <span className="font-medium text-foreground">{store.slug}</span>.
+          </p>
+        </CardHeader>
+      </Card>
       <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recent Revenue</p>
-          <p className="mt-2 text-2xl font-semibold">${(revenueCents / 100).toFixed(2)}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recent Orders</p>
-          <p className="mt-2 text-2xl font-semibold">{recentOrders.length}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Low Stock SKUs</p>
-          <p className="mt-2 text-2xl font-semibold">{lowStockProducts.length}</p>
-        </div>
+        <DataStat label="Recent Revenue" value={`$${(revenueCents / 100).toFixed(2)}`} className="bg-card" />
+        <DataStat label="Recent Orders" value={String(recentOrders.length)} className="bg-card" />
+        <DataStat label="Low Stock SKUs" value={String(lowStockProducts.length)} className="bg-card" />
       </section>
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-4">
           <h2 className="text-lg font-semibold">Low Stock Alerts</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {lowStockProducts.length === 0 ? (
@@ -65,7 +57,7 @@ export function DashboardOverview({ store, products, recentOrders, subscription 
             )}
           </ul>
         </div>
-        <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-4">
           <h2 className="text-lg font-semibold">Recent Orders</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {recentOrders.length === 0 ? (
@@ -82,12 +74,16 @@ export function DashboardOverview({ store, products, recentOrders, subscription 
           </ul>
         </div>
       </section>
-      <div className="rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
+      <Card>
+        <CardContent className="p-6">
         <SubscriptionPlanSelector currentPlan={subscription?.plan_key ?? "free"} currentStatus={subscription?.status ?? "active"} />
-      </div>
-      <div className="rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-6">
         <ProductManager initialProducts={products} />
-      </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }

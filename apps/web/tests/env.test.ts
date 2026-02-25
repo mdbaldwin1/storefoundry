@@ -52,7 +52,7 @@ describe("env schema", () => {
       STRIPE_STARTER_PRICE_ID: "price_1",
       STRIPE_GROWTH_PRICE_ID: "price_2",
       STRIPE_SCALE_PRICE_ID: "price_3",
-      VERCEL_PROJECT_PRODUCTION_URL: "storefoundry.vercel.app"
+      VERCEL_PROJECT_PRODUCTION_URL: "myrivo.vercel.app"
     });
 
     expect(parsed.success).toBe(true);

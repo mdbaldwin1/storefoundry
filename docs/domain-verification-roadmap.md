@@ -13,7 +13,7 @@ Implement automated domain ownership verification before enabling custom-domain 
 
 1. On domain add, generate a unique TXT token per domain.
 2. Show DNS instructions to merchant:
-   - TXT record name: `_storefoundry-verify.<domain>`
+   - TXT record name: `_myrivo-verify.<domain>`
    - TXT record value: generated token
 3. Verification worker checks DNS periodically (or on manual “Verify now”).
 4. If token matches:

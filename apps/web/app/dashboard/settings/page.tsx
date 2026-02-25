@@ -37,7 +37,7 @@ export default async function DashboardSettingsPage() {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
+    <section className="space-y-4 rounded-lg border border-border bg-card p-6">
       <header>
         <h1 className="text-2xl font-semibold">Store Settings</h1>
         <p className="text-sm text-muted-foreground">Manage profile, branding, and connected domains.</p>

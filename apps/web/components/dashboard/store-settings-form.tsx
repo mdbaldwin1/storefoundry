@@ -1,6 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { FeedbackMessage } from "@/components/ui/feedback-message";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { SectionCard } from "@/components/ui/section-card";
+import { Select } from "@/components/ui/select";
 import type { StoreRecord } from "@/types/database";
 
 type StoreSettingsFormProps = {
@@ -44,40 +50,25 @@ export function StoreSettingsForm({ initialStore }: StoreSettingsFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-md border border-border bg-muted/30 p-4">
-      <h2 className="text-lg font-semibold">Store Profile</h2>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Store Name</span>
-        <input
-          required
-          minLength={2}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </label>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Store Status</span>
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value as StoreRecord["status"])}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        >
-          <option value="draft">Draft</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
-      </label>
-      <p className="text-xs text-muted-foreground">Public storefront is visible only when status is set to Active.</p>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        {saving ? "Saving..." : "Save profile"}
-      </button>
-    </form>
+    <SectionCard title="Store Profile" className="bg-muted/30">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Store Name">
+            <Input required minLength={2} value={name} onChange={(event) => setName(event.target.value)} />
+          </FormField>
+          <FormField label="Store Status">
+            <Select value={status} onChange={(event) => setStatus(event.target.value as StoreRecord["status"])}>
+              <option value="draft">Draft</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+            </Select>
+          </FormField>
+          <p className="text-xs text-muted-foreground">Public storefront is visible only when status is set to Active.</p>
+          <FeedbackMessage type="error" message={error} />
+          <FeedbackMessage type="success" message={message} />
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving..." : "Save profile"}
+          </Button>
+        </form>
+    </SectionCard>
   );
 }

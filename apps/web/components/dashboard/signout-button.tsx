@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+
 export function SignoutButton() {
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
@@ -7,12 +9,8 @@ export function SignoutButton() {
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void signOut()}
-      className="rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-muted/45"
-    >
+    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => void signOut()}>
       Sign out
-    </button>
+    </Button>
   );
 }

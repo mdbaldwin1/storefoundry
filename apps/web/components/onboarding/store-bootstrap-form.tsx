@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FeedbackMessage } from "@/components/ui/feedback-message";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { normalizeStoreSlug } from "@/lib/stores/slug";
 
 type BootstrapResponse = {
@@ -43,46 +48,44 @@ export function StoreBootstrapForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card/80 p-8 shadow-sm">
-      <h1 className="text-2xl font-semibold">Set up your store</h1>
-      <p className="text-sm text-muted-foreground">Create your store profile. You can edit branding and domain settings later.</p>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Store name</span>
-        <input
-          type="text"
-          required
-          minLength={2}
-          value={storeName}
-          onChange={(event) => {
-            const next = event.target.value;
-            setStoreName(next);
-            if (!slug) {
-              setSlug(normalizeStoreSlug(next));
-            }
-          }}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </label>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Store slug</span>
-        <input
-          type="text"
-          required
-          minLength={3}
-          maxLength={63}
-          value={slug}
-          onChange={(event) => setSlug(normalizeStoreSlug(event.target.value))}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </label>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        {loading ? "Creating store..." : "Create store"}
-      </button>
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Set up your store</CardTitle>
+        <CardDescription>Create your store profile. You can edit branding and domain settings later.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Store name">
+            <Input
+              type="text"
+              required
+              minLength={2}
+              value={storeName}
+              onChange={(event) => {
+                const next = event.target.value;
+                setStoreName(next);
+                if (!slug) {
+                  setSlug(normalizeStoreSlug(next));
+                }
+              }}
+            />
+          </FormField>
+          <FormField label="Store slug">
+            <Input
+              type="text"
+              required
+              minLength={3}
+              maxLength={63}
+              value={slug}
+              onChange={(event) => setSlug(normalizeStoreSlug(event.target.value))}
+            />
+          </FormField>
+          <FeedbackMessage type="error" message={error} />
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Creating store..." : "Create store"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

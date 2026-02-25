@@ -30,7 +30,7 @@ Deploy behavior:
 
 ## DNS and domains
 
-- Platform root domain: `storefoundry.app`
+- Platform root domain: `myrivo.app`
 - Support custom domains via Vercel domain attachment.
 - Each custom domain must be verified before marking as primary in `store_domains`.
 
