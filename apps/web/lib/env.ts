@@ -1,8 +1,11 @@
 import { z } from "zod";
 
-export const coreEnvSchema = z.object({
+export const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1)
+});
+
+export const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1)
 });
 
@@ -20,18 +23,27 @@ export const stripeEnvSchema = z.object({
   STRIPE_SCALE_PRICE_ID: z.string().min(1)
 });
 
-export const envSchema = coreEnvSchema.merge(stripeEnvSchema).merge(appUrlEnvSchema);
+export const envSchema = publicEnvSchema.merge(serverEnvSchema).merge(stripeEnvSchema).merge(appUrlEnvSchema);
 
-let cachedCoreEnv: z.infer<typeof coreEnvSchema> | null = null;
+let cachedPublicEnv: z.infer<typeof publicEnvSchema> | null = null;
+let cachedServerEnv: z.infer<typeof serverEnvSchema> | null = null;
 let cachedStripeEnv: z.infer<typeof stripeEnvSchema> | null = null;
 let cachedAppUrl: string | null = null;
 
-export function getCoreEnv() {
-  if (!cachedCoreEnv) {
-    cachedCoreEnv = coreEnvSchema.parse(process.env);
+export function getPublicEnv() {
+  if (!cachedPublicEnv) {
+    cachedPublicEnv = publicEnvSchema.parse(process.env);
   }
 
-  return cachedCoreEnv;
+  return cachedPublicEnv;
+}
+
+export function getServerEnv() {
+  if (!cachedServerEnv) {
+    cachedServerEnv = serverEnvSchema.parse(process.env);
+  }
+
+  return cachedServerEnv;
 }
 
 export function getStripeEnv() {
@@ -66,5 +78,5 @@ export function getAppUrl() {
 }
 
 export function getEnv() {
-  return { ...getCoreEnv(), ...getStripeEnv(), NEXT_PUBLIC_APP_URL: getAppUrl() };
+  return { ...getPublicEnv(), ...getServerEnv(), ...getStripeEnv(), NEXT_PUBLIC_APP_URL: getAppUrl() };
 }
