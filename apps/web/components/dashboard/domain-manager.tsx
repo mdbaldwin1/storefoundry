@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FEATURES } from "@/config/features";
 import type { StoreDomainRecord } from "@/types/database";
 
 type DomainManagerProps = {
@@ -14,6 +15,7 @@ type DomainResponse = {
 };
 
 export function DomainManager({ initialDomains }: DomainManagerProps) {
+  const manualVerifyEnabled = FEATURES.manualDomainVerification;
   const [domains, setDomains] = useState(initialDomains);
   const [domainInput, setDomainInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -108,6 +110,11 @@ export function DomainManager({ initialDomains }: DomainManagerProps) {
       <div className="rounded-md border border-border bg-background p-3 text-xs text-muted-foreground">
         <p>Add a custom domain, then create a CNAME record pointing `www` to `cname.storefoundry.app`.</p>
         <p className="mt-1">Root domain: create an ALIAS/ANAME to `storefoundry.app` if your DNS provider supports it.</p>
+        {!manualVerifyEnabled ? (
+          <p className="mt-1">Verification is DNS-automated in production. Manual verify is disabled for safety.</p>
+        ) : (
+          <p className="mt-1">Manual verify is enabled for local/dev testing only.</p>
+        )}
       </div>
       <form onSubmit={addDomain} className="flex flex-col gap-2 sm:flex-row">
         <input
@@ -140,7 +147,7 @@ export function DomainManager({ initialDomains }: DomainManagerProps) {
                   Set primary
                 </button>
               ) : null}
-              {domain.verification_status !== "verified" ? (
+              {manualVerifyEnabled && domain.verification_status !== "verified" ? (
                 <button type="button" onClick={() => void markVerified(domain.id)} className="rounded-md border border-border px-2 py-1 text-xs">
                   Mark verified
                 </button>

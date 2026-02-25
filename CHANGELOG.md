@@ -64,3 +64,6 @@ All notable changes to this project will be documented in this file.
 - Added Playwright E2E harness with full merchant journey test and local-server-aware configuration.
 - Added dashboard loading/error states and storefront loading state for better resilience and UX continuity.
 - Added operational docs: env matrix, release runbook, and incident playbook.
+- Hardened owner-store bundle loading to gracefully tolerate missing optional relation cache entries (`store_settings`, `store_content_blocks`) instead of crashing dashboard routes.
+- Added owner-authenticated audit events API and dashboard Insights panel for filtering/viewing recent operational events.
+- Added feature-flagged manual domain verification control (`NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY`) for local/dev domain workflow simulation.

@@ -22,6 +22,24 @@ export type OwnedStoreBundle = {
   domains: Array<Pick<StoreDomainRecord, "id" | "domain" | "is_primary" | "verification_status">>;
 };
 
+type SupabaseQueryError = {
+  code?: string;
+  message?: string;
+} | null;
+
+export function isMissingRelationInSchemaCache(error: SupabaseQueryError) {
+  if (!error) {
+    return false;
+  }
+
+  if (error.code === "PGRST205") {
+    return true;
+  }
+
+  const message = error.message?.toLowerCase() ?? "";
+  return message.includes("could not find the table") || message.includes("schema cache");
+}
+
 export async function getOwnedStoreBundle(userId: string): Promise<OwnedStoreBundle | null> {
   const supabase = await createSupabaseServerClient();
 
@@ -87,19 +105,27 @@ export async function getOwnedStoreBundle(userId: string): Promise<OwnedStoreBun
     throw new Error(domainsError.message);
   }
 
-  if (settingsError) {
+  if (settingsError && !isMissingRelationInSchemaCache(settingsError)) {
     throw new Error(settingsError.message);
   }
 
-  if (contentBlocksError) {
+  if (contentBlocksError && !isMissingRelationInSchemaCache(contentBlocksError)) {
     throw new Error(contentBlocksError.message);
+  }
+
+  if (settingsError && isMissingRelationInSchemaCache(settingsError)) {
+    console.warn("store_settings relation missing in schema cache; continuing with default store settings.");
+  }
+
+  if (contentBlocksError && isMissingRelationInSchemaCache(contentBlocksError)) {
+    console.warn("store_content_blocks relation missing in schema cache; continuing with empty content blocks.");
   }
 
   return {
     store,
     subscription,
     branding,
-    settings,
+    settings: settingsError ? null : settings,
     contentBlocks: contentBlocks ?? [],
     domains: domains ?? []
   };

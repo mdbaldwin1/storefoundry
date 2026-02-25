@@ -152,3 +152,14 @@ export type PromotionRecord = {
   created_at: string;
   updated_at: string;
 };
+
+export type AuditEventRecord = {
+  id: string;
+  store_id: string | null;
+  actor_user_id: string | null;
+  action: string;
+  entity: string;
+  entity_id: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};

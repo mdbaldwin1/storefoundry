@@ -7,6 +7,7 @@
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `STRIPE_STUB_MODE` (`true` while local testing)
+- `NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY` (`true` only for local/dev DNS simulation)
 
 ## Required for Stripe live mode (hold until cutover)
 
@@ -25,4 +26,5 @@
 
 - Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
 - For production, set `STRIPE_STUB_MODE=false` only during final go-live cutover.
+- Keep `NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY=false` in production.
 - Validate envs with smoke tests after each deployment.

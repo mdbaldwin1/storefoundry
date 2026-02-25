@@ -5,7 +5,8 @@ describe("env schema", () => {
   test("public env validates browser-safe keys", () => {
     const parsed = publicEnvSchema.safeParse({
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
+      NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY: "true"
     });
 
     expect(parsed.success).toBe(true);
@@ -43,6 +44,7 @@ describe("env schema", () => {
     const parsed = envSchema.safeParse({
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
+      NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY: "false",
       SUPABASE_SERVICE_ROLE_KEY: "service-role",
       STRIPE_STUB_MODE: "false",
       STRIPE_SECRET_KEY: "sk_test_123",
@@ -60,6 +62,7 @@ describe("env schema", () => {
     const parsed = envSchema.safeParse({
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
+      NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY: "true",
       SUPABASE_SERVICE_ROLE_KEY: "service-role",
       STRIPE_STUB_MODE: "true",
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"

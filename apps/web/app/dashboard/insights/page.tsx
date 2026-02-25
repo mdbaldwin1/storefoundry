@@ -1,3 +1,4 @@
+import { AuditEventsPanel } from "@/components/dashboard/audit-events-panel";
 import { InsightsPanel } from "@/components/dashboard/insights-panel";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -20,7 +21,8 @@ export default async function DashboardInsightsPage() {
     return null;
   }
 
-  const [{ data: orders, error: ordersError }, { data: products, error: productsError }] = await Promise.all([
+  const [{ data: orders, error: ordersError }, { data: products, error: productsError }, { data: auditEvents, error: auditEventsError }] =
+    await Promise.all([
     supabase
       .from("orders")
       .select("id,total_cents,status,platform_fee_cents,discount_cents,created_at")
@@ -31,7 +33,13 @@ export default async function DashboardInsightsPage() {
       .from("products")
       .select("id,title,inventory_qty,status")
       .eq("store_id", bundle.store.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("audit_events")
+      .select("id,action,entity,entity_id,metadata,created_at")
+      .eq("store_id", bundle.store.id)
       .order("created_at", { ascending: false })
+      .limit(30)
   ]);
 
   if (ordersError) {
@@ -42,5 +50,14 @@ export default async function DashboardInsightsPage() {
     throw new Error(productsError.message);
   }
 
-  return <InsightsPanel recentOrders={orders ?? []} products={products ?? []} />;
+  if (auditEventsError && auditEventsError.code !== "PGRST205") {
+    throw new Error(auditEventsError.message);
+  }
+
+  return (
+    <div className="space-y-6">
+      <InsightsPanel recentOrders={orders ?? []} products={products ?? []} />
+      <AuditEventsPanel initialEvents={auditEvents ?? []} />
+    </div>
+  );
 }

@@ -61,4 +61,9 @@ test("full merchant journey from onboarding to fulfillment and reporting", async
   await page.goto("/dashboard/insights");
   await expect(page.getByText(/paid revenue/i)).toBeVisible();
   await expect(page.getByText(/daily revenue/i)).toBeVisible();
+  await expect(page.getByText(/recent audit events/i)).toBeVisible();
+  await page.getByLabel("Action").fill("update");
+  await page.getByLabel("Entity").fill("order");
+  await page.getByRole("button", { name: /^apply$/i }).click();
+  await expect(page.getByText(/^update$/i).first()).toBeVisible();
 });
