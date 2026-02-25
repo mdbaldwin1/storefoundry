@@ -56,3 +56,6 @@ All notable changes to this project will be documented in this file.
 - Added configurable storefront content blocks with dashboard editor and public storefront rendering.
 - Added inventory adjustment API and dashboard actions that write explicit `restock`/`adjustment` ledger events.
 - Added orders CSV export endpoint and dashboard export control for merchant reporting workflows.
+- Hardened promo redemption by moving final promo validation/redemption into transactional checkout RPC for race-safe discount application.
+- Added promo preview endpoint and storefront apply flow for pre-checkout discount visibility.
+- Added `dashboard/insights` with revenue trend visualization and operational stock/revenue metrics.

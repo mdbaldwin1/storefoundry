@@ -54,6 +54,7 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 - Fulfillment workflow states (`unfulfilled`, `processing`, `fulfilled`, `shipped`).
 - Inventory movement ledger for post-sale auditability.
 - Manual inventory adjustment endpoint/UI that writes ledger events for restock/adjustment actions.
+- Insights dashboard with revenue/discount/fee trends and low-stock watchlist.
 
 ## Release notes before live Stripe
 

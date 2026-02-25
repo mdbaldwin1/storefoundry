@@ -58,10 +58,18 @@ type CheckoutResponse = {
   error?: string;
 };
 
+type PromoPreviewResponse = {
+  promoCode?: string;
+  discountCents?: number;
+  discountedTotalCents?: number;
+  error?: string;
+};
+
 export function StorefrontPage({ store, branding, settings, contentBlocks, products }: StorefrontPageProps) {
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
+  const [applyingPromo, setApplyingPromo] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -111,6 +119,40 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
     );
   }
 
+  async function applyPromoPreview() {
+    if (!promoCode.trim()) {
+      setAppliedDiscountCents(0);
+      setAppliedPromoCode(null);
+      return;
+    }
+
+    setApplyingPromo(true);
+    setError(null);
+
+    const response = await fetch("/api/promotions/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        storeSlug: store.slug,
+        promoCode: promoCode.trim(),
+        subtotalCents
+      })
+    });
+
+    const payload = (await response.json()) as PromoPreviewResponse;
+    setApplyingPromo(false);
+
+    if (!response.ok || payload.discountCents === undefined) {
+      setAppliedDiscountCents(0);
+      setAppliedPromoCode(null);
+      setError(payload.error ?? "Unable to apply promo code.");
+      return;
+    }
+
+    setAppliedPromoCode(payload.promoCode ?? promoCode.trim().toUpperCase());
+    setAppliedDiscountCents(payload.discountCents);
+  }
+
   async function checkout(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -145,8 +187,8 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
 
     setCart([]);
     setPromoCode("");
-    setAppliedDiscountCents(payload.discountCents ?? 0);
-    setAppliedPromoCode(payload.promoCode ?? null);
+    setAppliedDiscountCents(0);
+    setAppliedPromoCode(null);
     setSuccessMessage(`Order ${payload.orderId} placed. Paid via ${payload.paymentMode ?? "stub"}.`);
   }
 
@@ -290,10 +332,13 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
             <p className="font-medium">Subtotal: ${(subtotalCents / 100).toFixed(2)}</p>
             {appliedDiscountCents > 0 ? (
               <p className="text-xs text-emerald-700">
-                Last discount: -${(appliedDiscountCents / 100).toFixed(2)}
+                Discount applied: -${(appliedDiscountCents / 100).toFixed(2)}
                 {appliedPromoCode ? ` (${appliedPromoCode})` : ""}
               </p>
             ) : null}
+            <p className="text-xs font-medium">
+              Estimated total: ${((subtotalCents - appliedDiscountCents) / 100).toFixed(2)}
+            </p>
             <p className="text-xs text-muted-foreground">Payment is running in protected test mode.</p>
           </div>
           <form onSubmit={checkout} className="space-y-2">
@@ -312,6 +357,14 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
               onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
             />
+            <button
+              type="button"
+              onClick={() => void applyPromoPreview()}
+              disabled={applyingPromo || !promoCode.trim()}
+              className="w-full rounded-md border border-border px-3 py-2 text-sm font-semibold disabled:opacity-60"
+            >
+              {applyingPromo ? "Applying..." : "Apply promo"}
+            </button>
             <button
               type="submit"
               disabled={pending || cartItems.length === 0}
