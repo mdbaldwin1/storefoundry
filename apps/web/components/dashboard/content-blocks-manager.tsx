@@ -1,6 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { StoreContentBlockRecord } from "@/types/database";
 
 type ContentBlocksManagerProps = {
@@ -105,91 +111,63 @@ export function ContentBlocksManager({ initialBlocks }: ContentBlocksManagerProp
   }
 
   return (
-    <section className="space-y-4 rounded-md border border-border bg-muted/30 p-4">
-      <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Storefront Content Blocks</h2>
-        <button type="button" onClick={addBlock} className="rounded-md border border-border px-3 py-2 text-xs font-medium">
+    <Card className="bg-muted/30">
+      <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle className="text-lg">Storefront Content Blocks</CardTitle>
+        <Button type="button" variant="outline" size="sm" onClick={addBlock}>
           Add block
-        </button>
-      </header>
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {blocks.length === 0 ? <p className="text-sm text-muted-foreground">No content blocks yet.</p> : null}
 
-      {blocks.length === 0 ? <p className="text-sm text-muted-foreground">No content blocks yet.</p> : null}
+        <div className="space-y-3">
+          {blocks.map((block, index) => (
+            <article key={block.id ?? `new-${index}`} className="space-y-2 rounded-md border border-border bg-background p-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">Sort Order</Label>
+                  <Input
+                    type="number"
+                    value={block.sortOrder}
+                    onChange={(event) => updateBlock(index, { sortOrder: Number(event.target.value) })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">Eyebrow</Label>
+                  <Input value={block.eyebrow} onChange={(event) => updateBlock(index, { eyebrow: event.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Title</Label>
+                <Input value={block.title} onChange={(event) => updateBlock(index, { title: event.target.value })} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Body</Label>
+                <Textarea rows={3} value={block.body} onChange={(event) => updateBlock(index, { body: event.target.value })} />
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
+                <Input placeholder="CTA Label" value={block.ctaLabel} onChange={(event) => updateBlock(index, { ctaLabel: event.target.value })} />
+                <Input placeholder="https://..." value={block.ctaUrl} onChange={(event) => updateBlock(index, { ctaUrl: event.target.value })} />
+                <label className="flex items-center gap-2 text-xs">
+                  <Checkbox checked={block.isActive} onChange={(event) => updateBlock(index, { isActive: event.target.checked })} />
+                  active
+                </label>
+              </div>
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => removeBlock(index)}>
+                Remove block
+              </Button>
+            </article>
+          ))}
+        </div>
 
-      <div className="space-y-3">
-        {blocks.map((block, index) => (
-          <article key={block.id ?? `new-${index}`} className="space-y-2 rounded-md border border-border bg-background p-3">
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Sort Order</span>
-                <input
-                  type="number"
-                  value={block.sortOrder}
-                  onChange={(event) => updateBlock(index, { sortOrder: Number(event.target.value) })}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Eyebrow</span>
-                <input
-                  value={block.eyebrow}
-                  onChange={(event) => updateBlock(index, { eyebrow: event.target.value })}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                />
-              </label>
-            </div>
-            <label className="space-y-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Title</span>
-              <input
-                value={block.title}
-                onChange={(event) => updateBlock(index, { title: event.target.value })}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-              />
-            </label>
-            <label className="space-y-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Body</span>
-              <textarea
-                rows={3}
-                value={block.body}
-                onChange={(event) => updateBlock(index, { body: event.target.value })}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-              />
-            </label>
-            <div className="grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
-              <input
-                placeholder="CTA Label"
-                value={block.ctaLabel}
-                onChange={(event) => updateBlock(index, { ctaLabel: event.target.value })}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-              />
-              <input
-                placeholder="https://..."
-                value={block.ctaUrl}
-                onChange={(event) => updateBlock(index, { ctaUrl: event.target.value })}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-              />
-              <label className="flex items-center gap-2 text-xs">
-                <input type="checkbox" checked={block.isActive} onChange={(event) => updateBlock(index, { isActive: event.target.checked })} />
-                active
-              </label>
-            </div>
-            <button type="button" onClick={() => removeBlock(index)} className="rounded-md border border-border px-2 py-1 text-xs">
-              Remove block
-            </button>
-          </article>
-        ))}
-      </div>
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
-
-      <button
-        type="button"
-        onClick={() => void saveBlocks()}
-        disabled={saving}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        {saving ? "Saving..." : "Save content blocks"}
-      </button>
-    </section>
+        <Button type="button" onClick={() => void saveBlocks()} disabled={saving}>
+          {saving ? "Saving..." : "Save content blocks"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusChip } from "@/components/ui/status-chip";
 
 type OrderDetailPanelProps = {
   orderId: string | null;
@@ -78,14 +81,22 @@ export function OrderDetailPanel({ orderId, onClose }: OrderDetailPanelProps) {
     return null;
   }
 
+  function orderTone(status: string) {
+    if (status === "paid" || status === "fulfilled" || status === "shipped") return "success" as const;
+    if (status === "failed" || status === "cancelled") return "danger" as const;
+    if (status === "processing") return "info" as const;
+    return "warning" as const;
+  }
+
   return (
-    <div className="rounded-md border border-border bg-muted/30 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Order Detail</h3>
-        <button type="button" onClick={onClose} className="rounded-md border border-border px-2 py-1 text-xs">
+    <Card className="bg-muted/30">
+      <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-lg">Order Detail</CardTitle>
+        <Button type="button" onClick={onClose} variant="outline" size="sm" className="h-7 text-xs">
           Close
-        </button>
-      </div>
+        </Button>
+      </CardHeader>
+      <CardContent>
 
       {loading ? <p className="text-sm text-muted-foreground">Loading order details...</p> : null}
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -100,10 +111,11 @@ export function OrderDetailPanel({ orderId, onClose }: OrderDetailPanelProps) {
               <span className="font-medium">Customer:</span> {payload.order.customer_email}
             </p>
             <p>
-              <span className="font-medium">Status:</span> {payload.order.status}
+              <span className="font-medium">Status:</span> <StatusChip label={payload.order.status} tone={orderTone(payload.order.status)} />
             </p>
             <p>
-              <span className="font-medium">Fulfillment:</span> {payload.order.fulfillment_status}
+              <span className="font-medium">Fulfillment:</span>{" "}
+              <StatusChip label={payload.order.fulfillment_status} tone={orderTone(payload.order.fulfillment_status)} />
             </p>
             <p>
               <span className="font-medium">Created:</span> {new Date(payload.order.created_at).toLocaleString()}
@@ -137,6 +149,7 @@ export function OrderDetailPanel({ orderId, onClose }: OrderDetailPanelProps) {
           </div>
         </div>
       ) : null}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

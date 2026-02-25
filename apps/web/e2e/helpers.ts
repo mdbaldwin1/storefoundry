@@ -10,8 +10,8 @@ export function buildMerchantIdentity() {
   const suffix = uniqueSuffix();
   return {
     suffix,
-    email: `storefoundry+${suffix}@example.com`,
-    password: `Storefoundry!${suffix.slice(-6)}`,
+    email: `myrivo+${suffix}@example.com`,
+    password: `Myrivo!${suffix.slice(-6)}`,
     storeName: `Tallow Studio ${suffix.slice(-4)}`,
     storeSlug: `tallow-${suffix.slice(-8).replace(/[^a-z0-9]/gi, "").toLowerCase()}`
   };

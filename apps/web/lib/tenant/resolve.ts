@@ -1,4 +1,4 @@
-const platformHosts = new Set(["localhost:3000", "storefoundry.app", "www.storefoundry.app"]);
+const platformHosts = new Set(["localhost:3000", "myrivo.app", "www.myrivo.app"]);
 
 export function normalizeHost(rawHost: string | null): string {
   if (!rawHost) {
@@ -19,8 +19,8 @@ export function resolveTenantLookup(hostHeader: string | null) {
     return { type: "platform" as const, key: null };
   }
 
-  if (host.endsWith(".storefoundry.app")) {
-    return { type: "slug" as const, key: host.replace(".storefoundry.app", "") };
+  if (host.endsWith(".myrivo.app")) {
+    return { type: "slug" as const, key: host.replace(".myrivo.app", "") };
   }
 
   return { type: "domain" as const, key: host };

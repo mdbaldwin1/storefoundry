@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { PLAN_CONFIGS, type PlanKey } from "@/config/pricing";
 
 type SubscriptionPlanSelectorProps = {
@@ -64,22 +66,24 @@ export function SubscriptionPlanSelector({ currentPlan, currentStatus }: Subscri
           const loading = pendingPlan === plan.plan;
 
           return (
-            <article key={plan.plan} className="space-y-3 rounded-md border border-border bg-muted/40 p-3">
-              <header>
-                <h4 className="font-medium">{plan.label}</h4>
-                <p className="text-sm text-muted-foreground">
-                  ${plan.monthlyPriceUsd}/mo • Platform fee {(plan.platformFeeBps / 100).toFixed(2)}%
-                </p>
-              </header>
-              <button
-                type="button"
-                onClick={() => void selectPlan(plan.plan)}
-                disabled={active || loading}
-                className="w-full rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {active ? "Current plan" : loading ? "Updating..." : `Choose ${plan.label}`}
-              </button>
-            </article>
+            <Card key={plan.plan} className="bg-muted/40">
+              <CardContent className="space-y-3 p-3">
+                <header>
+                  <h4 className="font-medium">{plan.label}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    ${plan.monthlyPriceUsd}/mo • Platform fee {(plan.platformFeeBps / 100).toFixed(2)}%
+                  </p>
+                </header>
+                <Button
+                  type="button"
+                  onClick={() => void selectPlan(plan.plan)}
+                  disabled={active || loading}
+                  className="w-full"
+                >
+                  {active ? "Current plan" : loading ? "Updating..." : `Choose ${plan.label}`}
+                </Button>
+              </CardContent>
+            </Card>
           );
         })}
       </div>

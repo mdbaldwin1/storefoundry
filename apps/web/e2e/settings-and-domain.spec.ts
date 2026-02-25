@@ -3,7 +3,7 @@ import { signupAndOnboard } from "./helpers";
 
 test("merchant can update profile, branding, policies, and domains", async ({ page }) => {
   const identity = await signupAndOnboard(page);
-  const domainRoot = `${identity.suffix.replace(/[^a-z0-9]/gi, "").toLowerCase()}.storefoundry-test.com`;
+  const domainRoot = `${identity.suffix.replace(/[^a-z0-9]/gi, "").toLowerCase()}.myrivo-test.com`;
   const domainSub = `shop.${domainRoot}`;
 
   await page.goto("/dashboard/settings");

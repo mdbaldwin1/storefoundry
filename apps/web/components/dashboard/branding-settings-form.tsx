@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { FeedbackMessage } from "@/components/ui/feedback-message";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { SectionCard } from "@/components/ui/section-card";
 import type { StoreBrandingRecord } from "@/types/database";
 
 type BrandingSettingsFormProps = {
@@ -24,8 +29,8 @@ function normalizeHex(value: string): string | null {
 
 export function BrandingSettingsForm({ initialBranding }: BrandingSettingsFormProps) {
   const [logoPath, setLogoPath] = useState(initialBranding?.logo_path ?? "");
-  const [primaryColor, setPrimaryColor] = useState(initialBranding?.primary_color ?? "#8C4218");
-  const [accentColor, setAccentColor] = useState(initialBranding?.accent_color ?? "#CC5A2A");
+  const [primaryColor, setPrimaryColor] = useState(initialBranding?.primary_color ?? "#0F7B84");
+  const [accentColor, setAccentColor] = useState(initialBranding?.accent_color ?? "#1AA3A8");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -68,52 +73,30 @@ export function BrandingSettingsForm({ initialBranding }: BrandingSettingsFormPr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-md border border-border bg-muted/30 p-4">
-      <h2 className="text-lg font-semibold">Branding</h2>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Logo URL</span>
-        <input
-          type="url"
-          placeholder="https://..."
-          value={logoPath}
-          onChange={(event) => setLogoPath(event.target.value)}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </label>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">Primary Color</span>
-          <input
-            type="text"
-            value={primaryColor}
-            onChange={(event) => setPrimaryColor(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">Accent Color</span>
-          <input
-            type="text"
-            value={accentColor}
-            onChange={(event) => setAccentColor(event.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </label>
-      </div>
-      <div className="rounded-md border border-border bg-background p-3">
-        <p className="text-xs text-muted-foreground">Preview values</p>
-        <p className="mt-2 text-sm">Primary: {normalizeHex(primaryColor) ?? "invalid"}</p>
-        <p className="text-sm">Accent: {normalizeHex(accentColor) ?? "invalid"}</p>
-      </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        {saving ? "Saving..." : "Save branding"}
-      </button>
-    </form>
+    <SectionCard title="Branding" className="bg-muted/30">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Logo URL">
+            <Input type="url" placeholder="https://..." value={logoPath} onChange={(event) => setLogoPath(event.target.value)} />
+          </FormField>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Primary Color">
+              <Input type="text" value={primaryColor} onChange={(event) => setPrimaryColor(event.target.value)} />
+            </FormField>
+            <FormField label="Accent Color">
+              <Input type="text" value={accentColor} onChange={(event) => setAccentColor(event.target.value)} />
+            </FormField>
+          </div>
+          <div className="rounded-md border border-border bg-background p-3">
+            <p className="text-xs text-muted-foreground">Preview values</p>
+            <p className="mt-2 text-sm">Primary: {normalizeHex(primaryColor) ?? "invalid"}</p>
+            <p className="text-sm">Accent: {normalizeHex(accentColor) ?? "invalid"}</p>
+          </div>
+          <FeedbackMessage type="error" message={error} />
+          <FeedbackMessage type="success" message={message} />
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving..." : "Save branding"}
+          </Button>
+        </form>
+    </SectionCard>
   );
 }

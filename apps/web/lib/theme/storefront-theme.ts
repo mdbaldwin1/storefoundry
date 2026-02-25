@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 
-const DEFAULT_PRIMARY = "#8C4218";
-const DEFAULT_ACCENT = "#CC5A2A";
+const DEFAULT_PRIMARY = "#0F7B84";
+const DEFAULT_ACCENT = "#1AA3A8";
 
 export type StorefrontThemeInput = {
   primaryColor?: string | null;

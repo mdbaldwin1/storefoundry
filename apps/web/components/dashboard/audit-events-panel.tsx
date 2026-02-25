@@ -1,6 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { AuditEventRecord } from "@/types/database";
 
 type AuditEventsPanelProps = {
@@ -55,26 +60,24 @@ export function AuditEventsPanel({ initialEvents }: AuditEventsPanelProps) {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-border bg-card/80 p-6 shadow-sm">
-      <header className="space-y-1">
-        <h2 className="text-xl font-semibold">Recent Audit Events</h2>
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-xl">Recent Audit Events</CardTitle>
         <p className="text-sm text-muted-foreground">
           Track sensitive merchant actions for support investigations and operational confidence.
         </p>
-      </header>
+      </CardHeader>
+      <CardContent className="space-y-4">
 
       <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
         <div className="space-y-1">
-          <label htmlFor="audit-action" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Action
-          </label>
-          <input
+          <Label htmlFor="audit-action" className="text-xs uppercase tracking-wide text-muted-foreground">Action</Label>
+          <Input
             id="audit-action"
             list="audit-actions"
             value={actionFilter}
             onChange={(event) => setActionFilter(event.target.value)}
             placeholder="promotion.created"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           />
           <datalist id="audit-actions">
             {commonActions.map((action) => (
@@ -84,26 +87,18 @@ export function AuditEventsPanel({ initialEvents }: AuditEventsPanelProps) {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="audit-entity" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Entity
-          </label>
-          <input
+          <Label htmlFor="audit-entity" className="text-xs uppercase tracking-wide text-muted-foreground">Entity</Label>
+          <Input
             id="audit-entity"
             value={entityFilter}
             onChange={(event) => setEntityFilter(event.target.value)}
             placeholder="order"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           />
         </div>
 
-        <button
-          type="button"
-          onClick={() => void applyFilters()}
-          disabled={loading}
-          className="h-fit self-end rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-        >
+        <Button type="button" onClick={() => void applyFilters()} disabled={loading} className="h-fit self-end">
           {loading ? "Loading..." : "Apply"}
-        </button>
+        </Button>
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -115,10 +110,10 @@ export function AuditEventsPanel({ initialEvents }: AuditEventsPanelProps) {
           events.map((event) => (
             <li key={event.id} className="space-y-2 rounded-md border border-border bg-muted/25 px-3 py-2">
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="rounded-full border border-border bg-background px-2 py-0.5 font-medium">{event.action}</span>
-                <span className="rounded-full border border-border bg-background px-2 py-0.5">{event.entity}</span>
+                <Badge variant="outline" className="bg-background font-medium">{event.action}</Badge>
+                <Badge variant="outline" className="bg-background">{event.entity}</Badge>
                 {event.entity_id ? (
-                  <span className="rounded-full border border-border bg-background px-2 py-0.5 text-muted-foreground">{event.entity_id}</span>
+                  <Badge variant="outline" className="bg-background text-muted-foreground">{event.entity_id}</Badge>
                 ) : null}
                 <span className="ml-auto text-muted-foreground">{formatDate(event.created_at)}</span>
               </div>
@@ -127,6 +122,7 @@ export function AuditEventsPanel({ initialEvents }: AuditEventsPanelProps) {
           ))
         )}
       </ul>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,4 +1,5 @@
 import type { OrderRecord, ProductRecord } from "@/types/database";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type DailyRevenuePoint = {
   date: string;
@@ -44,11 +45,12 @@ export function InsightsPanel({ recentOrders, products }: InsightsPanelProps) {
   const lowStock = products.filter((product) => product.status === "active" && product.inventory_qty < 10);
 
   return (
-    <section className="space-y-4 rounded-lg border border-border bg-card/80 p-6 shadow-sm">
-      <header>
-        <h2 className="text-xl font-semibold">Insights</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Insights</CardTitle>
         <p className="text-sm text-muted-foreground">Revenue, discounts, and stock health for operational planning.</p>
-      </header>
+      </CardHeader>
+      <CardContent className="space-y-4">
       <div className="grid gap-3 md:grid-cols-3">
         <article className="rounded-md border border-border bg-muted/25 p-3">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Paid Revenue</p>
@@ -100,6 +102,7 @@ export function InsightsPanel({ recentOrders, products }: InsightsPanelProps) {
           )}
         </ul>
       </section>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

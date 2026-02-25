@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { buildStorefrontThemeStyle } from "@/lib/theme/storefront-theme";
 
 type StorefrontProduct = {
@@ -216,7 +218,7 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
           </div>
           <div className="rounded-xl border border-border bg-background/80 p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Store Link</p>
-            <p className="mt-1 break-all text-sm font-medium">{store.slug}.storefoundry.app</p>
+            <p className="mt-1 break-all text-sm font-medium">{store.slug}.myrivo.app</p>
             <div className="mt-4 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-muted text-sm font-semibold">
               {store.name.slice(0, 2).toUpperCase()}
             </div>
@@ -290,14 +292,14 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
                     <p className="text-sm font-medium">${(product.price_cents / 100).toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">Stock: {product.inventory_qty}</p>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => addToCart(product.id)}
                     disabled={product.inventory_qty <= 0}
-                    className="w-full rounded-md bg-[var(--storefront-primary)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                    className="w-full bg-[var(--storefront-primary)] text-white hover:opacity-90"
                   >
                     {product.inventory_qty <= 0 ? "Out of stock" : "Add to cart"}
-                  </button>
+                  </Button>
                 </article>
               ))
             )}
@@ -314,13 +316,13 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
                 <li key={item.productId} className="space-y-1 rounded-md border border-border bg-muted/35 p-2">
                   <p className="text-sm font-medium">{item.product.title}</p>
                   <div className="flex items-center gap-2">
-                    <input
+                    <Input
                       type="number"
                       min={1}
                       max={99}
                       value={item.quantity}
                       onChange={(event) => updateQuantity(item.productId, Number(event.target.value))}
-                      className="w-20 rounded-md border border-border bg-background px-2 py-1 text-sm"
+                      className="h-8 w-20 px-2 py-1"
                     />
                     <p className="text-xs text-muted-foreground">${((item.product.price_cents * item.quantity) / 100).toFixed(2)}</p>
                   </div>
@@ -342,36 +344,35 @@ export function StorefrontPage({ store, branding, settings, contentBlocks, produ
             <p className="text-xs text-muted-foreground">Payment is running in protected test mode.</p>
           </div>
           <form onSubmit={checkout} className="space-y-2">
-            <input
+            <Input
               type="email"
               required
               placeholder="you@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
             />
-            <input
+            <Input
               type="text"
               placeholder="Promo code (optional)"
               value={promoCode}
               onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
             />
-            <button
+            <Button
               type="button"
               onClick={() => void applyPromoPreview()}
               disabled={applyingPromo || !promoCode.trim()}
-              className="w-full rounded-md border border-border px-3 py-2 text-sm font-semibold disabled:opacity-60"
+              variant="outline"
+              className="w-full"
             >
               {applyingPromo ? "Applying..." : "Apply promo"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={pending || cartItems.length === 0}
-              className="w-full rounded-md bg-[var(--storefront-accent)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="w-full bg-[var(--storefront-accent)] text-white hover:opacity-90"
             >
               {pending ? "Processing..." : "Checkout"}
-            </button>
+            </Button>
           </form>
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           {successMessage ? <p className="text-sm text-emerald-700">{successMessage}</p> : null}

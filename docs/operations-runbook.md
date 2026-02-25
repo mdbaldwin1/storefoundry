@@ -8,7 +8,7 @@
    - `npm run typecheck`
    - `npm run test`
    - `npm run build`
-   - `npm run e2e --workspace=@storefoundry/web`
+   - `npm run e2e --workspace=@myrivo/web`
 3. Push latest migrations to target database:
    - `supabase db push --linked`
 4. Verify migration alignment:
