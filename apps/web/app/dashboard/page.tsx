@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
