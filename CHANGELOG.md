@@ -32,3 +32,4 @@ All notable changes to this project will be documented in this file.
 - Updated Vercel `ignoreCommand` to skip all Git-triggered builds so deployments are controlled solely by the `main` GitHub Actions release workflow.
 - Fixed Supabase server client cookie write handling in Server Components to prevent dashboard runtime exceptions during auth session refresh.
 - Fixed production dashboard/runtime crashes caused by strict global app URL env parsing; app URL is now resolved lazily with Vercel fallback when billing routes need it.
+- Split env access into public/browser-safe vs server-only parsing to prevent signup/login runtime failures when service-role env vars are unavailable client-side.

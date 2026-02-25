@@ -1,11 +1,18 @@
 import { describe, expect, test } from "vitest";
-import { coreEnvSchema, envSchema, stripeEnvSchema } from "@/lib/env";
+import { envSchema, publicEnvSchema, serverEnvSchema, stripeEnvSchema } from "@/lib/env";
 
 describe("env schema", () => {
-  test("core env does not require stripe values", () => {
-    const parsed = coreEnvSchema.safeParse({
+  test("public env validates browser-safe keys", () => {
+    const parsed = publicEnvSchema.safeParse({
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  test("server env validates service role key", () => {
+    const parsed = serverEnvSchema.safeParse({
       SUPABASE_SERVICE_ROLE_KEY: "service-role"
     });
 
