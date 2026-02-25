@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
+import { isMissingRelationInSchemaCache } from "@/lib/supabase/error-classifiers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const querySchema = z.object({
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    if (error.code === "PGRST205") {
+    if (isMissingRelationInSchemaCache(error)) {
       return NextResponse.json({ events: [] });
     }
 

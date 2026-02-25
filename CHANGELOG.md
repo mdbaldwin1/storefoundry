@@ -67,3 +67,5 @@ All notable changes to this project will be documented in this file.
 - Hardened owner-store bundle loading to gracefully tolerate missing optional relation cache entries (`store_settings`, `store_content_blocks`) instead of crashing dashboard routes.
 - Added owner-authenticated audit events API and dashboard Insights panel for filtering/viewing recent operational events.
 - Added feature-flagged manual domain verification control (`NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY`) for local/dev domain workflow simulation.
+- Added shared Supabase error classifier and storefront-safe fallbacks so missing optional relations in schema cache no longer crash tenant storefront rendering.
+- Expanded Playwright coverage with dedicated settings/domain workflow and storefront visibility-gating scenarios.

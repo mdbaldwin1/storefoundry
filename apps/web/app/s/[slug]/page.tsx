@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { StorefrontPage } from "@/components/storefront/storefront-page";
+import { isMissingRelationInSchemaCache } from "@/lib/supabase/error-classifiers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -64,11 +65,11 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
     throw new Error(productsError.message);
   }
 
-  if (settingsError) {
+  if (settingsError && !isMissingRelationInSchemaCache(settingsError)) {
     throw new Error(settingsError.message);
   }
 
-  if (contentBlocksError) {
+  if (contentBlocksError && !isMissingRelationInSchemaCache(contentBlocksError)) {
     throw new Error(contentBlocksError.message);
   }
 
@@ -76,8 +77,8 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
     <StorefrontPage
       store={store}
       branding={branding}
-      settings={settings}
-      contentBlocks={contentBlocks ?? []}
+      settings={settingsError ? null : settings}
+      contentBlocks={contentBlocksError ? [] : (contentBlocks ?? [])}
       products={products ?? []}
     />
   );

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { isMissingRelationInSchemaCache } from "@/lib/stores/owner-store";
+import { isMissingRelationInSchemaCache } from "@/lib/supabase/error-classifiers";
 
 describe("owner store relation fallback", () => {
   test("returns true for PostgREST missing relation code", () => {

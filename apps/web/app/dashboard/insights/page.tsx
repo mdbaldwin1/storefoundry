@@ -1,6 +1,7 @@
 import { AuditEventsPanel } from "@/components/dashboard/audit-events-panel";
 import { InsightsPanel } from "@/components/dashboard/insights-panel";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
+import { isMissingRelationInSchemaCache } from "@/lib/supabase/error-classifiers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function DashboardInsightsPage() {
     throw new Error(productsError.message);
   }
 
-  if (auditEventsError && auditEventsError.code !== "PGRST205") {
+  if (auditEventsError && !isMissingRelationInSchemaCache(auditEventsError)) {
     throw new Error(auditEventsError.message);
   }
 
