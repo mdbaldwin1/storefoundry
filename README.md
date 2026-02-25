@@ -25,9 +25,19 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 ## Quick start
 
 1. `cp .env.example .env.local`
-2. Fill in Supabase + Stripe environment values.
-3. `npm install`
-4. `npm run dev`
+2. Fill in Supabase environment values.
+3. Set `STRIPE_STUB_MODE=true` for local-first development.
+4. `npm install`
+5. `npm run dev`
+
+## Local MVP flow
+
+1. Create an account at `/signup`.
+2. Complete onboarding at `/onboarding`.
+3. Manage catalog + plans at `/dashboard`.
+4. Manage orders at `/dashboard/orders`.
+5. Configure profile/branding/domains at `/dashboard/settings`.
+6. Test storefront and checkout at `/s/<store-slug>`.
 
 ## Quality checks
 

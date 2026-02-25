@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
-import { PageShell } from "@/components/layout/page-shell";
+import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,23 +11,14 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    return null;
   }
 
-  const { data: store, error: storeError } = await supabase
-    .from("stores")
-    .select("id,name,slug,status")
-    .eq("owner_user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  if (storeError) {
-    throw new Error(storeError.message);
-  }
+  const bundle = await getOwnedStoreBundle(user.id);
+  const store = bundle?.store;
 
   if (!store) {
-    redirect("/onboarding");
+    return null;
   }
 
   const { data: products, error: productsError } = await supabase
@@ -41,9 +31,5 @@ export default async function DashboardPage() {
     throw new Error(productsError.message);
   }
 
-  return (
-    <PageShell>
-      <DashboardOverview store={store} products={products ?? []} />
-    </PageShell>
-  );
+  return <DashboardOverview store={store} products={products ?? []} subscription={bundle?.subscription ?? null} />;
 }

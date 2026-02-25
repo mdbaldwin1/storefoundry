@@ -33,3 +33,11 @@ All notable changes to this project will be documented in this file.
 - Fixed Supabase server client cookie write handling in Server Components to prevent dashboard runtime exceptions during auth session refresh.
 - Fixed production dashboard/runtime crashes caused by strict global app URL env parsing; app URL is now resolved lazily with Vercel fallback when billing routes need it.
 - Split env access into public/browser-safe vs server-only parsing to prevent signup/login runtime failures when service-role env vars are unavailable client-side.
+- Added configurable Stripe stub mode (`STRIPE_STUB_MODE`) so local development can run full subscription and checkout flows without live Stripe calls.
+- Added shared billing checkout helper and subscription plan-selection API to centralize paid/free plan transitions.
+- Added merchant settings APIs and UI for store profile, branding, domain management, and storefront status control.
+- Added dashboard layout navigation and new merchant operations pages for orders and settings.
+- Added storefront runtime route (`/s/[slug]`) with cart and stub checkout pipeline that creates orders/order-items and decrements inventory.
+- Added root host-based tenant resolution so non-platform hosts can render storefront content directly.
+- Added sign-out API/button and onboarding guardrails to prevent duplicate store bootstrap for a single owner account.
+- Added order totals utility and tests to keep platform-fee calculation behavior deterministic and configurable.

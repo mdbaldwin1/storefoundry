@@ -1,0 +1,34 @@
+import { OrdersManager } from "@/components/dashboard/orders-manager";
+import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
+
+export default async function DashboardOrdersPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const bundle = await getOwnedStoreBundle(user.id);
+
+  if (!bundle) {
+    return null;
+  }
+
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("id,customer_email,subtotal_cents,total_cents,status,platform_fee_cents,created_at")
+    .eq("store_id", bundle.store.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return <OrdersManager initialOrders={orders ?? []} />;
+}

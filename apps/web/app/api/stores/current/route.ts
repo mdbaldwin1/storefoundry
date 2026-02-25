@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
+
+const updateStoreSchema = z.object({
+  name: z.string().min(2).max(120).optional(),
+  status: z.enum(["draft", "active", "suspended"]).optional()
+});
+
+export async function GET() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const bundle = await getOwnedStoreBundle(user.id);
+
+  if (!bundle) {
+    return NextResponse.json({ store: null });
+  }
+
+  return NextResponse.json(bundle);
+}
+
+export async function PATCH(request: NextRequest) {
+  const payload = updateStoreSchema.safeParse(await request.json());
+
+  if (!payload.success) {
+    return NextResponse.json({ error: "Invalid payload", details: payload.error.flatten() }, { status: 400 });
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const bundle = await getOwnedStoreBundle(user.id);
+
+  if (!bundle) {
+    return NextResponse.json({ error: "No store found for account" }, { status: 404 });
+  }
+
+  const updates: Record<string, string> = {};
+
+  if (payload.data.name !== undefined) {
+    updates.name = payload.data.name;
+  }
+
+  if (payload.data.status !== undefined) {
+    updates.status = payload.data.status;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No updates provided" }, { status: 400 });
+  }
+
+  const { data, error } = await supabase
+    .from("stores")
+    .update(updates)
+    .eq("id", bundle.store.id)
+    .select("id,name,slug,status")
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ store: data });
+}

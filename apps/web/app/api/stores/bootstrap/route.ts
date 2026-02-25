@@ -32,6 +32,22 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createSupabaseAdminClient();
+  const { data: existingStore, error: existingStoreError } = await supabase
+    .from("stores")
+    .select("id")
+    .eq("owner_user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingStoreError) {
+    return NextResponse.json({ error: existingStoreError.message }, { status: 500 });
+  }
+
+  if (existingStore) {
+    return NextResponse.json({ error: "Store already exists for this account" }, { status: 409 });
+  }
+
   const { data, error } = await supabase
     .from("stores")
     .insert({
