@@ -24,6 +24,8 @@ const statusOptions: Array<ProductRecord["status"]> = ["draft", "active", "archi
 
 export function ProductManager({ initialProducts }: ProductManagerProps) {
   const [products, setProducts] = useState(initialProducts);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | ProductRecord["status"]>("all");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priceDollars, setPriceDollars] = useState("0.00");
@@ -36,6 +38,25 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
     const lowStockCount = products.filter((product) => product.inventory_qty < 10).length;
     return { activeCount, lowStockCount, total: products.length };
   }, [products]);
+
+  const visibleProducts = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return products.filter((product) => {
+      if (statusFilter !== "all" && product.status !== statusFilter) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      return (
+        product.title.toLowerCase().includes(normalizedQuery) ||
+        product.description.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [products, query, statusFilter]);
 
   async function createProduct(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -112,6 +133,32 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
       <header className="space-y-2">
         <h2 className="text-2xl font-semibold">Catalog and Inventory</h2>
         <p className="text-sm text-muted-foreground">Add products, track stock, and update listing status.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Search</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Find product"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="space-y-1">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status Filter</span>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as "all" | ProductRecord["status"])}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="all">All statuses</option>
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-border bg-muted/45 px-3 py-2 text-sm">Total products: {stats.total}</div>
           <div className="rounded-md border border-border bg-muted/45 px-3 py-2 text-sm">Active: {stats.activeCount}</div>
@@ -183,14 +230,14 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
             </tr>
           </thead>
           <tbody>
-            {products.length === 0 ? (
+            {visibleProducts.length === 0 ? (
               <tr>
                 <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
-                  No products yet.
+                  No products match this filter.
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              visibleProducts.map((product) => (
                 <tr key={product.id} className="border-t border-border">
                   <td className="px-3 py-2">
                     <p className="font-medium">{product.title}</p>
@@ -228,17 +275,26 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void updateProduct(product.id, {
-                          status: product.status === "archived" ? "draft" : "archived"
-                        })
-                      }
-                      className="rounded-md border border-border px-3 py-1 text-xs font-medium"
-                    >
-                      {product.status === "archived" ? "Unarchive" : "Archive"}
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void updateProduct(product.id, {
+                            status: product.status === "archived" ? "draft" : "archived"
+                          })
+                        }
+                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                      >
+                        {product.status === "archived" ? "Unarchive" : "Archive"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void updateProduct(product.id, { inventory_qty: product.inventory_qty + 10 })}
+                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                      >
+                        +10 stock
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

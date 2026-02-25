@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 import { HeroSection } from "@/components/home/hero-section";
+import { PricingPreview } from "@/components/home/pricing-preview";
+import { ValueGrid } from "@/components/home/value-grid";
 import { PageShell } from "@/components/layout/page-shell";
 import { StorefrontPage } from "@/components/storefront/storefront-page";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -53,10 +55,15 @@ export default async function HomePage() {
 
   if (store) {
     const supabase = await createSupabaseServerClient();
-    const [{ data: branding }, { data: products }] = await Promise.all([
+    const [{ data: branding }, { data: settings }, { data: products }] = await Promise.all([
       supabase
         .from("store_branding")
         .select("logo_path,primary_color,accent_color")
+        .eq("store_id", store.id)
+        .maybeSingle(),
+      supabase
+        .from("store_settings")
+        .select("support_email,fulfillment_message,shipping_policy,return_policy,announcement")
         .eq("store_id", store.id)
         .maybeSingle(),
       supabase
@@ -67,12 +74,16 @@ export default async function HomePage() {
         .order("created_at", { ascending: false })
     ]);
 
-    return <StorefrontPage store={store} branding={branding} products={products ?? []} />;
+    return <StorefrontPage store={store} branding={branding} settings={settings} products={products ?? []} />;
   }
 
   return (
     <PageShell maxWidthClassName="max-w-4xl">
-      <HeroSection />
+      <div className="space-y-6">
+        <HeroSection />
+        <ValueGrid />
+        <PricingPreview />
+      </div>
     </PageShell>
   );
 }

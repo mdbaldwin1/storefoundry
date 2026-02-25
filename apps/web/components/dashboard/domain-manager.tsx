@@ -84,6 +84,10 @@ export function DomainManager({ initialDomains }: DomainManagerProps) {
   return (
     <section className="space-y-4 rounded-md border border-border bg-muted/30 p-4">
       <h2 className="text-lg font-semibold">Domains</h2>
+      <div className="rounded-md border border-border bg-background p-3 text-xs text-muted-foreground">
+        <p>Add a custom domain, then create a CNAME record pointing `www` to `cname.storefoundry.app`.</p>
+        <p className="mt-1">Root domain: create an ALIAS/ANAME to `storefoundry.app` if your DNS provider supports it.</p>
+      </div>
       <form onSubmit={addDomain} className="flex flex-col gap-2 sm:flex-row">
         <input
           required

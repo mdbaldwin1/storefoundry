@@ -31,5 +31,23 @@ export default async function DashboardPage() {
     throw new Error(productsError.message);
   }
 
-  return <DashboardOverview store={store} products={products ?? []} subscription={bundle?.subscription ?? null} />;
+  const { data: recentOrders, error: ordersError } = await supabase
+    .from("orders")
+    .select("id,total_cents,status,created_at")
+    .eq("store_id", store.id)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  if (ordersError) {
+    throw new Error(ordersError.message);
+  }
+
+  return (
+    <DashboardOverview
+      store={store}
+      products={products ?? []}
+      recentOrders={recentOrders ?? []}
+      subscription={bundle?.subscription ?? null}
+    />
+  );
 }

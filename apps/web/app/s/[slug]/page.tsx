@@ -27,10 +27,19 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
     notFound();
   }
 
-  const [{ data: branding, error: brandingError }, { data: products, error: productsError }] = await Promise.all([
+  const [
+    { data: branding, error: brandingError },
+    { data: settings, error: settingsError },
+    { data: products, error: productsError }
+  ] = await Promise.all([
     supabase
       .from("store_branding")
       .select("logo_path,primary_color,accent_color")
+      .eq("store_id", store.id)
+      .maybeSingle(),
+    supabase
+      .from("store_settings")
+      .select("support_email,fulfillment_message,shipping_policy,return_policy,announcement")
       .eq("store_id", store.id)
       .maybeSingle(),
     supabase
@@ -49,5 +58,9 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
     throw new Error(productsError.message);
   }
 
-  return <StorefrontPage store={store} branding={branding} products={products ?? []} />;
+  if (settingsError) {
+    throw new Error(settingsError.message);
+  }
+
+  return <StorefrontPage store={store} branding={branding} settings={settings} products={products ?? []} />;
 }

@@ -1,5 +1,7 @@
 import { BrandingSettingsForm } from "@/components/dashboard/branding-settings-form";
 import { DomainManager } from "@/components/dashboard/domain-manager";
+import { InventoryMovementsPanel } from "@/components/dashboard/inventory-movements-panel";
+import { StorePoliciesForm } from "@/components/dashboard/store-policies-form";
 import { StoreSettingsForm } from "@/components/dashboard/store-settings-form";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -30,7 +32,9 @@ export default async function DashboardSettingsPage() {
       </header>
       <StoreSettingsForm initialStore={bundle.store} />
       <BrandingSettingsForm initialBranding={bundle.branding} />
+      <StorePoliciesForm initialSettings={bundle.settings} />
       <DomainManager initialDomains={bundle.domains} />
+      <InventoryMovementsPanel />
     </section>
   );
 }

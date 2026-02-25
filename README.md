@@ -39,6 +39,25 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 5. Configure profile/branding/domains at `/dashboard/settings`.
 6. Test storefront and checkout at `/s/<store-slug>`.
 
+## Merchant capabilities
+
+- Multi-tenant storefront rendering by subdomain or custom domain.
+- Merchant onboarding, auth, and protected dashboard.
+- Product catalog management with inventory controls and status workflows.
+- Subscription plan management with configurable platform fees.
+- Domain management and branding controls.
+- Public storefront with cart, checkout, and policy/announcement content.
+- Order operations with detail drill-down and status management.
+- Inventory movement ledger for post-sale auditability.
+
+## Release notes before live Stripe
+
+- Keep `STRIPE_STUB_MODE=true` in local and staging while hardening.
+- Apply latest Supabase migrations before QA (`supabase db push`).
+- Verify checkout path through `/api/orders/checkout` and order/inventory updates.
+- Verify subscription selection flow updates `subscriptions.platform_fee_bps`.
+- Final step: switch `STRIPE_STUB_MODE=false` and configure live Stripe keys/webhook.
+
 ## Quality checks
 
 - `npm run lint`

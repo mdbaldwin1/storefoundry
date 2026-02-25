@@ -48,6 +48,17 @@ export type StoreBrandingRecord = {
   updated_at: string;
 };
 
+export type StoreSettingsRecord = {
+  store_id: string;
+  support_email: string | null;
+  fulfillment_message: string | null;
+  shipping_policy: string | null;
+  return_policy: string | null;
+  announcement: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type OrderStatus = "pending" | "paid" | "failed" | "cancelled";
 
 export type OrderRecord = {
@@ -87,4 +98,17 @@ export type SubscriptionRecord = {
   platform_fee_bps: number;
   created_at: string;
   updated_at: string;
+};
+
+export type InventoryMovementReason = "sale" | "restock" | "adjustment";
+
+export type InventoryMovementRecord = {
+  id: string;
+  store_id: string;
+  product_id: string;
+  order_id: string | null;
+  delta_qty: number;
+  reason: InventoryMovementReason;
+  note: string | null;
+  created_at: string;
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { buildStorefrontThemeStyle } from "@/lib/theme/storefront-theme";
 
 type StorefrontProduct = {
   id: string;
@@ -21,6 +22,13 @@ type StorefrontPageProps = {
     primary_color: string | null;
     accent_color: string | null;
   } | null;
+  settings: {
+    support_email: string | null;
+    fulfillment_message: string | null;
+    shipping_policy: string | null;
+    return_policy: string | null;
+    announcement: string | null;
+  } | null;
   products: StorefrontProduct[];
 };
 
@@ -36,7 +44,7 @@ type CheckoutResponse = {
   error?: string;
 };
 
-export function StorefrontPage({ store, branding, products }: StorefrontPageProps) {
+export function StorefrontPage({ store, branding, settings, products }: StorefrontPageProps) {
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
@@ -57,6 +65,10 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
   }, [cart, products]);
 
   const subtotalCents = cartItems.reduce((sum, item) => sum + item.product.price_cents * item.quantity, 0);
+  const storefrontThemeStyle = buildStorefrontThemeStyle({
+    primaryColor: branding?.primary_color,
+    accentColor: branding?.accent_color
+  });
 
   function addToCart(productId: string) {
     setCart((current) => {
@@ -118,24 +130,60 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-6 px-6 py-10">
-      <section className="rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Storefront</p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-semibold">{store.name}</h1>
-            <p className="text-sm text-muted-foreground">{store.slug}.storefoundry.app</p>
+    <main style={storefrontThemeStyle} className="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        {settings?.announcement ? (
+          <div className="bg-[var(--storefront-accent)] px-4 py-2 text-center text-xs font-medium text-white">
+            {settings.announcement}
           </div>
-          <div className="flex h-12 min-w-12 items-center justify-center rounded-full border border-border bg-muted px-2 text-xs font-semibold">
-            {store.name.slice(0, 2).toUpperCase()}
+        ) : null}
+        <div className="grid gap-6 bg-gradient-to-r from-[var(--storefront-primary)]/20 via-background to-[var(--storefront-accent)]/20 p-6 sm:p-10 lg:grid-cols-[2fr_1fr]">
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Small-Batch Storefront</p>
+            <h1 className="text-4xl font-semibold leading-tight">{store.name}</h1>
+            <p className="max-w-xl text-sm text-muted-foreground">
+              Handmade essentials crafted in small batches. Transparent ingredients, direct-from-maker quality, and fast checkout.
+            </p>
+            {settings?.fulfillment_message ? <p className="text-sm font-medium text-foreground">{settings.fulfillment_message}</p> : null}
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full border border-border bg-background px-3 py-1">Natural ingredients</span>
+              <span className="rounded-full border border-border bg-background px-3 py-1">Made to order</span>
+              <span className="rounded-full border border-border bg-background px-3 py-1">Direct support</span>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-background/80 p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Store Link</p>
+            <p className="mt-1 break-all text-sm font-medium">{store.slug}.storefoundry.app</p>
+            <div className="mt-4 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-muted text-sm font-semibold">
+              {store.name.slice(0, 2).toUpperCase()}
+            </div>
+            {branding?.logo_path ? <p className="mt-3 text-xs text-muted-foreground">Logo: {branding.logo_path}</p> : null}
           </div>
         </div>
-        {branding?.logo_path ? <p className="mt-2 text-xs text-muted-foreground">Logo URL: {branding.logo_path}</p> : null}
       </section>
+      {(settings?.shipping_policy || settings?.return_policy || settings?.support_email) && (
+        <section className="grid gap-3 rounded-xl border border-border bg-card/80 p-4 md:grid-cols-3">
+          <article className="space-y-1 rounded-md border border-border bg-background px-3 py-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Shipping</h3>
+            <p className="text-sm">{settings?.shipping_policy || "Shipping policy coming soon."}</p>
+          </article>
+          <article className="space-y-1 rounded-md border border-border bg-background px-3 py-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Returns</h3>
+            <p className="text-sm">{settings?.return_policy || "Return policy coming soon."}</p>
+          </article>
+          <article className="space-y-1 rounded-md border border-border bg-background px-3 py-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Support</h3>
+            <p className="text-sm">{settings?.support_email || "Contact details coming soon."}</p>
+          </article>
+        </section>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-3">
-          <h2 className="text-xl font-semibold">Products</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Featured Products</h2>
+            <p className="text-xs text-muted-foreground">{products.length} available</p>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {products.length === 0 ? (
               <p className="rounded-md border border-border bg-card/80 p-4 text-sm text-muted-foreground">No products available yet.</p>
@@ -154,7 +202,7 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
                     type="button"
                     onClick={() => addToCart(product.id)}
                     disabled={product.inventory_qty <= 0}
-                    className="w-full rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                    className="w-full rounded-md bg-[var(--storefront-primary)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
                   >
                     {product.inventory_qty <= 0 ? "Out of stock" : "Add to cart"}
                   </button>
@@ -164,7 +212,7 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
           </div>
         </div>
 
-        <aside className="space-y-3 rounded-md border border-border bg-card/80 p-4 shadow-sm">
+        <aside className="space-y-3 rounded-xl border border-border bg-card/90 p-4 shadow-sm">
           <h2 className="text-xl font-semibold">Cart</h2>
           {cartItems.length === 0 ? (
             <p className="text-sm text-muted-foreground">Your cart is empty.</p>
@@ -188,7 +236,10 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
               ))}
             </ul>
           )}
-          <p className="text-sm font-medium">Subtotal: ${(subtotalCents / 100).toFixed(2)}</p>
+          <div className="rounded-md border border-border bg-muted/25 p-2 text-sm">
+            <p className="font-medium">Subtotal: ${(subtotalCents / 100).toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground">Payment is running in protected test mode.</p>
+          </div>
           <form onSubmit={checkout} className="space-y-2">
             <input
               type="email"
@@ -201,7 +252,7 @@ export function StorefrontPage({ store, branding, products }: StorefrontPageProp
             <button
               type="submit"
               disabled={pending || cartItems.length === 0}
-              className="w-full rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+              className="w-full rounded-md bg-[var(--storefront-accent)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
               {pending ? "Processing..." : "Checkout"}
             </button>

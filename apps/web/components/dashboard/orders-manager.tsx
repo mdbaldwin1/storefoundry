@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { OrderDetailPanel } from "@/components/dashboard/order-detail-panel";
 import type { OrderRecord } from "@/types/database";
 
 type OrdersManagerProps = {
@@ -20,6 +21,7 @@ const statusOptions: OrderStatus[] = ["pending", "paid", "failed", "cancelled"];
 
 export function OrdersManager({ initialOrders }: OrdersManagerProps) {
   const [orders, setOrders] = useState(initialOrders);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const totals = useMemo(() => {
@@ -73,12 +75,13 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
               <th className="px-3 py-2 font-medium">Total</th>
               <th className="px-3 py-2 font-medium">Platform Fee</th>
               <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Details</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
                   No orders yet.
                 </td>
               </tr>
@@ -102,12 +105,22 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
                       ))}
                     </select>
                   </td>
+                  <td className="px-3 py-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOrderId(order.id)}
+                      className="rounded-md border border-border px-2 py-1 text-xs"
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+      <OrderDetailPanel orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
     </section>
   );
 }

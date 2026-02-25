@@ -41,3 +41,9 @@ All notable changes to this project will be documented in this file.
 - Added root host-based tenant resolution so non-platform hosts can render storefront content directly.
 - Added sign-out API/button and onboarding guardrails to prevent duplicate store bootstrap for a single owner account.
 - Added order totals utility and tests to keep platform-fee calculation behavior deterministic and configurable.
+- Added transactional checkout migration with a service-role-only RPC that atomically creates orders, decrements inventory, and writes inventory ledger events.
+- Added merchant policy settings (support email, announcement, fulfillment, shipping/return copy) with dashboard editing and storefront rendering.
+- Added order details API/UI and inventory movement dashboard panel for stronger merchant operations visibility.
+- Expanded dashboard overview with KPIs, low-stock alerts, and recent-order summaries.
+- Expanded home/marketing page with differentiator value cards and pricing preview.
+- Upgraded storefront visual design with branding-driven theme tokens and richer trust/policy content.
