@@ -4,7 +4,8 @@ import type {
   SubscriptionRecord,
   StoreBrandingRecord,
   StoreDomainRecord,
-  StoreSettingsRecord
+  StoreSettingsRecord,
+  StoreContentBlockRecord
 } from "@/types/database";
 
 export type OwnedStoreBundle = {
@@ -15,6 +16,9 @@ export type OwnedStoreBundle = {
     StoreSettingsRecord,
     "support_email" | "fulfillment_message" | "shipping_policy" | "return_policy" | "announcement"
   > | null;
+  contentBlocks: Array<
+    Pick<StoreContentBlockRecord, "id" | "sort_order" | "eyebrow" | "title" | "body" | "cta_label" | "cta_url" | "is_active">
+  >;
   domains: Array<Pick<StoreDomainRecord, "id" | "domain" | "is_primary" | "verification_status">>;
 };
 
@@ -41,29 +45,35 @@ export async function getOwnedStoreBundle(userId: string): Promise<OwnedStoreBun
     { data: subscription, error: subscriptionError },
     { data: branding, error: brandingError },
     { data: settings, error: settingsError },
+    { data: contentBlocks, error: contentBlocksError },
     { data: domains, error: domainsError }
   ] = await Promise.all([
-      supabase
-        .from("subscriptions")
-        .select("plan_key,status,platform_fee_bps")
-        .eq("store_id", store.id)
-        .maybeSingle(),
-      supabase
-        .from("store_branding")
-        .select("logo_path,primary_color,accent_color,theme_json")
-        .eq("store_id", store.id)
-        .maybeSingle(),
-      supabase
-        .from("store_settings")
-        .select("support_email,fulfillment_message,shipping_policy,return_policy,announcement")
-        .eq("store_id", store.id)
-        .maybeSingle(),
-      supabase
-        .from("store_domains")
-        .select("id,domain,is_primary,verification_status")
-        .eq("store_id", store.id)
-        .order("created_at", { ascending: false })
-    ]);
+    supabase
+      .from("subscriptions")
+      .select("plan_key,status,platform_fee_bps")
+      .eq("store_id", store.id)
+      .maybeSingle(),
+    supabase
+      .from("store_branding")
+      .select("logo_path,primary_color,accent_color,theme_json")
+      .eq("store_id", store.id)
+      .maybeSingle(),
+    supabase
+      .from("store_settings")
+      .select("support_email,fulfillment_message,shipping_policy,return_policy,announcement")
+      .eq("store_id", store.id)
+      .maybeSingle(),
+    supabase
+      .from("store_content_blocks")
+      .select("id,sort_order,eyebrow,title,body,cta_label,cta_url,is_active")
+      .eq("store_id", store.id)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("store_domains")
+      .select("id,domain,is_primary,verification_status")
+      .eq("store_id", store.id)
+      .order("created_at", { ascending: false })
+  ]);
 
   if (subscriptionError) {
     throw new Error(subscriptionError.message);
@@ -81,11 +91,16 @@ export async function getOwnedStoreBundle(userId: string): Promise<OwnedStoreBun
     throw new Error(settingsError.message);
   }
 
+  if (contentBlocksError) {
+    throw new Error(contentBlocksError.message);
+  }
+
   return {
     store,
     subscription,
     branding,
     settings,
+    contentBlocks: contentBlocks ?? [],
     domains: domains ?? []
   };
 }

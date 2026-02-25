@@ -51,3 +51,6 @@ All notable changes to this project will be documented in this file.
 - Added store policy data model (`store_settings`) and dashboard editor for announcements, fulfillment messaging, support, shipping, and returns.
 - Added local domain-verification helper action in dashboard to support non-production domain workflow testing.
 - Added release-readiness checklist doc for QA, Stripe cutover, and operations signoff.
+- Added promotions system (promo codes, percent/fixed discounts, limits, active windows) with dashboard management and checkout integration.
+- Added order fulfillment workflow fields and dashboard controls for `unfulfilled`, `processing`, `fulfilled`, and `shipped`.
+- Added configurable storefront content blocks with dashboard editor and public storefront rendering.

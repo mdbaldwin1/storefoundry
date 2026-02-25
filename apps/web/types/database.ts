@@ -62,6 +62,20 @@ export type StoreSettingsRecord = {
   updated_at: string;
 };
 
+export type StoreContentBlockRecord = {
+  id: string;
+  store_id: string;
+  sort_order: number;
+  eyebrow: string | null;
+  title: string;
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type OrderStatus = "pending" | "paid" | "failed" | "cancelled";
 
 export type OrderRecord = {
@@ -72,9 +86,14 @@ export type OrderRecord = {
   subtotal_cents: number;
   total_cents: number;
   status: OrderStatus;
+  fulfillment_status: "unfulfilled" | "processing" | "fulfilled" | "shipped";
+  fulfilled_at: string | null;
+  shipped_at: string | null;
   stripe_payment_intent_id: string | null;
   platform_fee_bps: number;
   platform_fee_cents: number;
+  discount_cents: number;
+  promo_code: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -114,4 +133,22 @@ export type InventoryMovementRecord = {
   reason: InventoryMovementReason;
   note: string | null;
   created_at: string;
+};
+
+export type PromotionDiscountType = "percent" | "fixed";
+
+export type PromotionRecord = {
+  id: string;
+  store_id: string;
+  code: string;
+  discount_type: PromotionDiscountType;
+  discount_value: number;
+  min_subtotal_cents: number;
+  max_redemptions: number | null;
+  times_redeemed: number;
+  starts_at: string | null;
+  ends_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };

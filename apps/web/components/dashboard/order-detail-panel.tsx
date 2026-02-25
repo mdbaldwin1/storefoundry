@@ -14,8 +14,13 @@ type OrderDetailResponse = {
     subtotal_cents: number;
     total_cents: number;
     status: string;
+    fulfillment_status: string;
+    fulfilled_at: string | null;
+    shipped_at: string | null;
     platform_fee_bps: number;
     platform_fee_cents: number;
+    discount_cents: number;
+    promo_code: string | null;
     currency: string;
     created_at: string;
   };
@@ -98,6 +103,9 @@ export function OrderDetailPanel({ orderId, onClose }: OrderDetailPanelProps) {
               <span className="font-medium">Status:</span> {payload.order.status}
             </p>
             <p>
+              <span className="font-medium">Fulfillment:</span> {payload.order.fulfillment_status}
+            </p>
+            <p>
               <span className="font-medium">Created:</span> {new Date(payload.order.created_at).toLocaleString()}
             </p>
             <p>
@@ -105,6 +113,12 @@ export function OrderDetailPanel({ orderId, onClose }: OrderDetailPanelProps) {
             </p>
             <p>
               <span className="font-medium">Total:</span> ${(payload.order.total_cents / 100).toFixed(2)}
+            </p>
+            <p>
+              <span className="font-medium">Discount:</span> ${(payload.order.discount_cents / 100).toFixed(2)}
+            </p>
+            <p>
+              <span className="font-medium">Promo:</span> {payload.order.promo_code ?? "none"}
             </p>
           </div>
 

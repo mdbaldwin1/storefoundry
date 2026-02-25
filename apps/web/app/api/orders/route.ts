@@ -5,7 +5,8 @@ import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 
 const updateSchema = z.object({
   orderId: z.string().uuid(),
-  status: z.enum(["pending", "paid", "failed", "cancelled"])
+  status: z.enum(["pending", "paid", "failed", "cancelled"]).optional(),
+  fulfillmentStatus: z.enum(["unfulfilled", "processing", "fulfilled", "shipped"]).optional()
 });
 
 export async function GET() {
@@ -26,7 +27,9 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("orders")
-    .select("id,customer_email,subtotal_cents,total_cents,status,platform_fee_cents,created_at")
+    .select(
+      "id,customer_email,subtotal_cents,total_cents,status,fulfillment_status,discount_cents,promo_code,platform_fee_cents,created_at"
+    )
     .eq("store_id", bundle.store.id)
     .order("created_at", { ascending: false });
 
@@ -59,12 +62,34 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "No store found for account" }, { status: 404 });
   }
 
+  const updates: Record<string, unknown> = {};
+
+  if (payload.data.status !== undefined) {
+    updates.status = payload.data.status;
+  }
+
+  if (payload.data.fulfillmentStatus !== undefined) {
+    updates.fulfillment_status = payload.data.fulfillmentStatus;
+    if (payload.data.fulfillmentStatus === "fulfilled") {
+      updates.fulfilled_at = new Date().toISOString();
+    }
+    if (payload.data.fulfillmentStatus === "shipped") {
+      updates.shipped_at = new Date().toISOString();
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No updates provided" }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from("orders")
-    .update({ status: payload.data.status })
+    .update(updates)
     .eq("id", payload.data.orderId)
     .eq("store_id", bundle.store.id)
-    .select("id,customer_email,subtotal_cents,total_cents,status,platform_fee_cents,created_at")
+    .select(
+      "id,customer_email,subtotal_cents,total_cents,status,fulfillment_status,discount_cents,promo_code,platform_fee_cents,created_at"
+    )
     .single();
 
   if (error) {

@@ -30,6 +30,7 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
   const [
     { data: branding, error: brandingError },
     { data: settings, error: settingsError },
+    { data: contentBlocks, error: contentBlocksError },
     { data: products, error: productsError }
   ] = await Promise.all([
     supabase
@@ -42,6 +43,11 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
       .select("support_email,fulfillment_message,shipping_policy,return_policy,announcement")
       .eq("store_id", store.id)
       .maybeSingle(),
+    supabase
+      .from("store_content_blocks")
+      .select("id,sort_order,eyebrow,title,body,cta_label,cta_url,is_active")
+      .eq("store_id", store.id)
+      .order("sort_order", { ascending: true }),
     supabase
       .from("products")
       .select("id,title,description,image_url,price_cents,inventory_qty")
@@ -62,5 +68,17 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
     throw new Error(settingsError.message);
   }
 
-  return <StorefrontPage store={store} branding={branding} settings={settings} products={products ?? []} />;
+  if (contentBlocksError) {
+    throw new Error(contentBlocksError.message);
+  }
+
+  return (
+    <StorefrontPage
+      store={store}
+      branding={branding}
+      settings={settings}
+      contentBlocks={contentBlocks ?? []}
+      products={products ?? []}
+    />
+  );
 }

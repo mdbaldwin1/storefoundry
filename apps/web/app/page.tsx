@@ -55,7 +55,7 @@ export default async function HomePage() {
 
   if (store) {
     const supabase = await createSupabaseServerClient();
-    const [{ data: branding }, { data: settings }, { data: products }] = await Promise.all([
+    const [{ data: branding }, { data: settings }, { data: contentBlocks }, { data: products }] = await Promise.all([
       supabase
         .from("store_branding")
         .select("logo_path,primary_color,accent_color")
@@ -67,6 +67,11 @@ export default async function HomePage() {
         .eq("store_id", store.id)
         .maybeSingle(),
       supabase
+        .from("store_content_blocks")
+        .select("id,sort_order,eyebrow,title,body,cta_label,cta_url,is_active")
+        .eq("store_id", store.id)
+        .order("sort_order", { ascending: true }),
+      supabase
         .from("products")
         .select("id,title,description,image_url,price_cents,inventory_qty")
         .eq("store_id", store.id)
@@ -74,7 +79,15 @@ export default async function HomePage() {
         .order("created_at", { ascending: false })
     ]);
 
-    return <StorefrontPage store={store} branding={branding} settings={settings} products={products ?? []} />;
+    return (
+      <StorefrontPage
+        store={store}
+        branding={branding}
+        settings={settings}
+        contentBlocks={contentBlocks ?? []}
+        products={products ?? []}
+      />
+    );
   }
 
   return (

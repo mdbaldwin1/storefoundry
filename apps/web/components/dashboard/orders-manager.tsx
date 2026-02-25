@@ -6,18 +6,43 @@ import type { OrderRecord } from "@/types/database";
 
 type OrdersManagerProps = {
   initialOrders: Array<
-    Pick<OrderRecord, "id" | "customer_email" | "subtotal_cents" | "total_cents" | "status" | "platform_fee_cents" | "created_at">
+    Pick<
+      OrderRecord,
+      | "id"
+      | "customer_email"
+      | "subtotal_cents"
+      | "total_cents"
+      | "status"
+      | "fulfillment_status"
+      | "discount_cents"
+      | "promo_code"
+      | "platform_fee_cents"
+      | "created_at"
+    >
   >;
 };
 
 type OrderStatus = OrderRecord["status"];
 
 type OrdersResponse = {
-  order?: Pick<OrderRecord, "id" | "customer_email" | "subtotal_cents" | "total_cents" | "status" | "platform_fee_cents" | "created_at">;
+  order?: Pick<
+    OrderRecord,
+    | "id"
+    | "customer_email"
+    | "subtotal_cents"
+    | "total_cents"
+    | "status"
+    | "fulfillment_status"
+    | "discount_cents"
+    | "promo_code"
+    | "platform_fee_cents"
+    | "created_at"
+  >;
   error?: string;
 };
 
 const statusOptions: OrderStatus[] = ["pending", "paid", "failed", "cancelled"];
+const fulfillmentOptions: Array<OrderRecord["fulfillment_status"]> = ["unfulfilled", "processing", "fulfilled", "shipped"];
 
 export function OrdersManager({ initialOrders }: OrdersManagerProps) {
   const [orders, setOrders] = useState(initialOrders);
@@ -49,6 +74,25 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
 
     if (!response.ok || !payload.order) {
       setError(payload.error ?? "Unable to update order status.");
+      return;
+    }
+
+    setOrders((current) => current.map((order) => (order.id === orderId ? payload.order! : order)));
+  }
+
+  async function updateFulfillment(orderId: string, fulfillmentStatus: OrderRecord["fulfillment_status"]) {
+    setError(null);
+
+    const response = await fetch("/api/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, fulfillmentStatus })
+    });
+
+    const payload = (await response.json()) as OrdersResponse;
+
+    if (!response.ok || !payload.order) {
+      setError(payload.error ?? "Unable to update fulfillment status.");
       return;
     }
 
@@ -94,15 +138,17 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
               <th className="px-3 py-2 font-medium">Created</th>
               <th className="px-3 py-2 font-medium">Customer</th>
               <th className="px-3 py-2 font-medium">Total</th>
+              <th className="px-3 py-2 font-medium">Discount</th>
               <th className="px-3 py-2 font-medium">Platform Fee</th>
               <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Fulfillment</th>
               <th className="px-3 py-2 font-medium">Details</th>
             </tr>
           </thead>
           <tbody>
             {visibleOrders.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
                   No orders yet.
                 </td>
               </tr>
@@ -112,6 +158,10 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
                   <td className="px-3 py-2">{new Date(order.created_at).toLocaleString()}</td>
                   <td className="px-3 py-2">{order.customer_email}</td>
                   <td className="px-3 py-2">${(order.total_cents / 100).toFixed(2)}</td>
+                  <td className="px-3 py-2">
+                    {order.discount_cents > 0 ? `-$${(order.discount_cents / 100).toFixed(2)}` : "$0.00"}
+                    {order.promo_code ? <p className="text-xs text-muted-foreground">{order.promo_code}</p> : null}
+                  </td>
                   <td className="px-3 py-2">${(order.platform_fee_cents / 100).toFixed(2)}</td>
                   <td className="px-3 py-2">
                     <select
@@ -120,6 +170,21 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
                       className="rounded-md border border-border bg-background px-2 py-1 text-sm"
                     >
                       {statusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
+                    <select
+                      value={order.fulfillment_status}
+                      onChange={(event) =>
+                        void updateFulfillment(order.id, event.target.value as OrderRecord["fulfillment_status"])
+                      }
+                      className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    >
+                      {fulfillmentOptions.map((status) => (
                         <option key={status} value={status}>
                           {status}
                         </option>

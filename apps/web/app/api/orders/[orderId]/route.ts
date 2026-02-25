@@ -35,7 +35,9 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
-    .select("id,customer_email,subtotal_cents,total_cents,status,platform_fee_bps,platform_fee_cents,currency,created_at")
+    .select(
+      "id,customer_email,subtotal_cents,total_cents,status,fulfillment_status,fulfilled_at,shipped_at,platform_fee_bps,platform_fee_cents,discount_cents,promo_code,currency,created_at"
+    )
     .eq("id", params.data.orderId)
     .eq("store_id", bundle.store.id)
     .maybeSingle();

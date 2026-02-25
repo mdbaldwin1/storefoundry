@@ -31,6 +31,16 @@ type StorefrontPageProps = {
     return_policy: string | null;
     announcement: string | null;
   } | null;
+  contentBlocks: Array<{
+    id: string;
+    sort_order: number;
+    eyebrow: string | null;
+    title: string;
+    body: string;
+    cta_label: string | null;
+    cta_url: string | null;
+    is_active: boolean;
+  }>;
   products: StorefrontProduct[];
 };
 
@@ -42,16 +52,21 @@ type CartEntry = {
 type CheckoutResponse = {
   orderId?: string;
   totalCents?: number;
+  discountCents?: number;
+  promoCode?: string | null;
   paymentMode?: string;
   error?: string;
 };
 
-export function StorefrontPage({ store, branding, settings, products }: StorefrontPageProps) {
+export function StorefrontPage({ store, branding, settings, contentBlocks, products }: StorefrontPageProps) {
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [appliedDiscountCents, setAppliedDiscountCents] = useState(0);
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 
   const cartItems = useMemo(() => {
     return cart
@@ -114,6 +129,7 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
       body: JSON.stringify({
         storeSlug: store.slug,
         email,
+        promoCode: promoCode.trim() || undefined,
         items: cartItems.map((item) => ({ productId: item.productId, quantity: item.quantity }))
       })
     });
@@ -128,6 +144,9 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
     }
 
     setCart([]);
+    setPromoCode("");
+    setAppliedDiscountCents(payload.discountCents ?? 0);
+    setAppliedPromoCode(payload.promoCode ?? null);
     setSuccessMessage(`Order ${payload.orderId} placed. Paid via ${payload.paymentMode ?? "stub"}.`);
   }
 
@@ -179,6 +198,25 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
           </article>
         </section>
       )}
+      {contentBlocks.filter((block) => block.is_active).length > 0 ? (
+        <section className="grid gap-3 md:grid-cols-2">
+          {contentBlocks
+            .filter((block) => block.is_active)
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .map((block) => (
+              <article key={block.id} className="rounded-xl border border-border bg-card/80 p-4 shadow-sm">
+                {block.eyebrow ? <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{block.eyebrow}</p> : null}
+                <h3 className="mt-1 text-lg font-semibold">{block.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{block.body}</p>
+                {block.cta_label && block.cta_url ? (
+                  <a href={block.cta_url} className="mt-3 inline-flex rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-muted/40">
+                    {block.cta_label}
+                  </a>
+                ) : null}
+              </article>
+            ))}
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-3">
@@ -250,6 +288,12 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
           )}
           <div className="rounded-md border border-border bg-muted/25 p-2 text-sm">
             <p className="font-medium">Subtotal: ${(subtotalCents / 100).toFixed(2)}</p>
+            {appliedDiscountCents > 0 ? (
+              <p className="text-xs text-emerald-700">
+                Last discount: -${(appliedDiscountCents / 100).toFixed(2)}
+                {appliedPromoCode ? ` (${appliedPromoCode})` : ""}
+              </p>
+            ) : null}
             <p className="text-xs text-muted-foreground">Payment is running in protected test mode.</p>
           </div>
           <form onSubmit={checkout} className="space-y-2">
@@ -259,6 +303,13 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
               placeholder="you@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Promo code (optional)"
+              value={promoCode}
+              onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
             />
             <button
