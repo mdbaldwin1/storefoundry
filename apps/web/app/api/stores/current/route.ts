@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { logAuditEvent } from "@/lib/audit/log";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 
@@ -29,6 +30,12 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = updateStoreSchema.safeParse(await request.json());
 
   if (!payload.success) {

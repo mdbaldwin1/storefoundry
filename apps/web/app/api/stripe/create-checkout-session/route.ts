@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getAppUrl, isStripeStubMode } from "@/lib/env";
 import { getPlanConfig, type PlanKey } from "@/config/pricing";
 import { createSubscriptionCheckoutSession } from "@/lib/billing/create-checkout-session";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const payloadSchema = z.object({
@@ -11,6 +12,12 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = payloadSchema.safeParse(await request.json());
 
   if (!payload.success) {

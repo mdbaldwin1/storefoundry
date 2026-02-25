@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { logAuditEvent } from "@/lib/audit/log";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const createProductSchema = z.object({
@@ -75,6 +76,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = createProductSchema.safeParse(await request.json());
 
   if (!payload.success) {
@@ -125,6 +132,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = updateProductSchema.safeParse(await request.json());
 
   if (!payload.success) {

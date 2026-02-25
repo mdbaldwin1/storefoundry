@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { logAuditEvent } from "@/lib/audit/log";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -12,6 +13,12 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = payloadSchema.safeParse(await request.json());
 
   if (!payload.success) {

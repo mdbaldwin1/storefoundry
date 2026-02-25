@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOwnedStoreBundle } from "@/lib/stores/owner-store";
 
@@ -40,6 +41,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = createDomainSchema.safeParse(await request.json());
 
   if (!payload.success) {
@@ -88,6 +95,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = updateDomainSchema.safeParse(await request.json());
 
   if (!payload.success) {
@@ -149,6 +162,12 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const payload = deleteDomainSchema.safeParse(await request.json());
 
   if (!payload.success) {

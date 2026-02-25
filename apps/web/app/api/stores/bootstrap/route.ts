@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { logAuditEvent } from "@/lib/audit/log";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { isValidStoreSlug, normalizeStoreSlug } from "@/lib/stores/slug";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -12,6 +13,12 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const rateLimitResponse = checkRateLimit(request, {
     key: "store-bootstrap",
     limit: 10,

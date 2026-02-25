@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { calculateDiscountCents } from "@/lib/promotions/calculate-discount";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { enforceTrustedOrigin } from "@/lib/security/request-origin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const payloadSchema = z.object({
@@ -11,6 +12,12 @@ const payloadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const trustedOriginResponse = enforceTrustedOrigin(request);
+
+  if (trustedOriginResponse) {
+    return trustedOriginResponse;
+  }
+
   const rateLimitResponse = checkRateLimit(request, {
     key: "promo-preview",
     limit: 60,
