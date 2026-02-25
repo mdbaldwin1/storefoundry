@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getCoreEnv, getStripeEnv } from "@/lib/env";
+import { getAppUrl, getStripeEnv } from "@/lib/env";
 import { getPlanConfig, type PlanKey } from "@/config/pricing";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
   }
 
   const stripe = getStripeClient();
-  const coreEnv = getCoreEnv();
   const stripeEnv = getStripeEnv();
+  const appUrl = getAppUrl();
   const planConfig = getPlanConfig(payload.data.plan as PlanKey);
 
   if (!planConfig.stripePriceEnvKey) {
@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
     mode: "subscription",
     line_items: [{ price, quantity: 1 }],
     customer: customerId,
-    success_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=success`,
-    cancel_url: `${coreEnv.NEXT_PUBLIC_APP_URL}/dashboard?billing=cancelled`,
+    success_url: `${appUrl}/dashboard?billing=success`,
+    cancel_url: `${appUrl}/dashboard?billing=cancelled`,
     metadata: {
       store_id: ownedStore.id,
       plan: payload.data.plan,
