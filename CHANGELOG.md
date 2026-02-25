@@ -69,3 +69,4 @@ All notable changes to this project will be documented in this file.
 - Added feature-flagged manual domain verification control (`NEXT_PUBLIC_ENABLE_MANUAL_DOMAIN_VERIFY`) for local/dev domain workflow simulation.
 - Added shared Supabase error classifier and storefront-safe fallbacks so missing optional relations in schema cache no longer crash tenant storefront rendering.
 - Expanded Playwright coverage with dedicated settings/domain workflow and storefront visibility-gating scenarios.
+- Fixed draft-store UX so authenticated owners can preview `/s/[slug]` before activation, while public traffic remains restricted to active stores.

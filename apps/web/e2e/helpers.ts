@@ -73,10 +73,7 @@ export async function signupAndOnboard(page: Page) {
   const identity = buildMerchantIdentity();
   await ensureUserExists(identity.email, identity.password);
 
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(identity.email);
-  await page.getByLabel("Password").fill(identity.password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await login(page, identity.email, identity.password);
 
   await expect(page).toHaveURL(/\/onboarding/);
   await page.getByLabel("Store name").fill(identity.storeName);
@@ -87,6 +84,14 @@ export async function signupAndOnboard(page: Page) {
   await expect(page.getByText(identity.storeName)).toBeVisible();
 
   return identity;
+}
+
+export async function login(page: Page, email: string, password: string) {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/(dashboard|onboarding)/);
 }
 
 export async function activateStore(page: Page) {

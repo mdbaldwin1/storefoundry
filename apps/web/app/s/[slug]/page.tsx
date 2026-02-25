@@ -12,12 +12,14 @@ type StorefrontRouteParams = {
 export default async function StorefrontSlugPage({ params }: StorefrontRouteParams) {
   const resolvedParams = await params;
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
   const { data: store, error: storeError } = await supabase
     .from("stores")
-    .select("id,name,slug,status")
+    .select("id,name,slug,status,owner_user_id")
     .eq("slug", resolvedParams.slug)
-    .eq("status", "active")
     .maybeSingle();
 
   if (storeError) {
@@ -25,6 +27,12 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
   }
 
   if (!store) {
+    notFound();
+  }
+
+  const isOwnerPreview = Boolean(user && user.id === store.owner_user_id);
+
+  if (store.status !== "active" && !isOwnerPreview) {
     notFound();
   }
 

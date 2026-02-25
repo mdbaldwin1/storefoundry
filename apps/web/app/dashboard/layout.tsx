@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <PageShell>
       <div className="space-y-6">
-        <DashboardNav storeSlug={bundle.store.slug} />
+        <DashboardNav storeSlug={bundle.store.slug} storeStatus={bundle.store.status} />
         {children}
       </div>
     </PageShell>

@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 import { signupAndOnboard } from "./helpers";
 
 test("merchant can update profile, branding, policies, and domains", async ({ page }) => {
-  await signupAndOnboard(page);
+  const identity = await signupAndOnboard(page);
+  const domainRoot = `${identity.suffix.replace(/[^a-z0-9]/gi, "").toLowerCase()}.storefoundry-test.com`;
+  const domainSub = `shop.${domainRoot}`;
 
   await page.goto("/dashboard/settings");
 
@@ -21,15 +23,15 @@ test("merchant can update profile, branding, policies, and domains", async ({ pa
   await page.getByRole("button", { name: /save policies/i }).click();
   await expect(page.getByText(/policies and contact settings saved/i)).toBeVisible();
 
-  await page.getByPlaceholder("athomeapothacary.com").fill("athomeapothacary.com");
+  await page.getByPlaceholder("athomeapothacary.com").fill(domainRoot);
   await page.getByRole("button", { name: /^add domain$/i }).click();
-  await expect(page.getByText("athomeapothacary.com")).toBeVisible();
+  await expect(page.getByText(domainRoot)).toBeVisible();
 
-  await page.getByPlaceholder("athomeapothacary.com").fill("shop.athomeapothacary.com");
+  await page.getByPlaceholder("athomeapothacary.com").fill(domainSub);
   await page.getByRole("button", { name: /^add domain$/i }).click();
-  await expect(page.getByText("shop.athomeapothacary.com")).toBeVisible();
+  await expect(page.getByText(domainSub)).toBeVisible();
 
-  const secondDomainRow = page.locator("li", { hasText: "shop.athomeapothacary.com" }).first();
+  const secondDomainRow = page.locator("li", { hasText: domainSub }).first();
   await secondDomainRow.getByRole("button", { name: /set primary/i }).click();
   await expect(secondDomainRow.getByText(/primary/i)).toBeVisible();
 });
