@@ -30,3 +30,4 @@ All notable changes to this project will be documented in this file.
 - Expanded Stripe webhook handling for checkout completion plus subscription create/update/delete lifecycle synchronization.
 - Added pricing utility for Stripe price ID to plan mapping, with tests, to keep plan/fee behavior configurable and deterministic.
 - Updated Vercel `ignoreCommand` to skip all Git-triggered builds so deployments are controlled solely by the `main` GitHub Actions release workflow.
+- Fixed Supabase server client cookie write handling in Server Components to prevent dashboard runtime exceptions during auth session refresh.
