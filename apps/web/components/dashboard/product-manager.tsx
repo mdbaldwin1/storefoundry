@@ -1,17 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { ProductRecord } from "@/types/database";
 
 type ProductManagerProps = {
   initialProducts: Array<
-    Pick<ProductRecord, "id" | "title" | "description" | "price_cents" | "inventory_qty" | "status" | "created_at">
+    Pick<
+      ProductRecord,
+      "id" | "title" | "description" | "sku" | "image_url" | "is_featured" | "price_cents" | "inventory_qty" | "status" | "created_at"
+    >
   >;
 };
 
 type ProductListItem = Pick<
   ProductRecord,
-  "id" | "title" | "description" | "price_cents" | "inventory_qty" | "status" | "created_at"
+  "id" | "title" | "description" | "sku" | "image_url" | "is_featured" | "price_cents" | "inventory_qty" | "status" | "created_at"
 >;
 
 type ProductResponse = {
@@ -28,6 +32,9 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
   const [statusFilter, setStatusFilter] = useState<"all" | ProductRecord["status"]>("all");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [sku, setSku] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
   const [priceDollars, setPriceDollars] = useState("0.00");
   const [inventoryQty, setInventoryQty] = useState("0");
   const [pending, setPending] = useState(false);
@@ -78,6 +85,9 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
       body: JSON.stringify({
         title,
         description,
+        sku: sku.trim() || null,
+        imageUrl: imageUrl.trim() || null,
+        isFeatured,
         priceCents,
         inventoryQty: inventory
       })
@@ -95,12 +105,23 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
     setProducts((current) => [createdProduct, ...current]);
     setTitle("");
     setDescription("");
+    setSku("");
+    setImageUrl("");
+    setIsFeatured(false);
     setPriceDollars("0.00");
     setInventoryQty("0");
     setPending(false);
   }
 
-  async function updateProduct(productId: string, patch: { inventory_qty?: number; status?: ProductRecord["status"] }) {
+  async function updateProduct(
+    productId: string,
+    patch: {
+      inventory_qty?: number;
+      status?: ProductRecord["status"];
+      is_featured?: boolean;
+      image_url?: string | null;
+    }
+  ) {
     setError(null);
 
     const response = await fetch("/api/products", {
@@ -109,7 +130,9 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
       body: JSON.stringify({
         productId,
         inventoryQty: patch.inventory_qty,
-        status: patch.status
+        status: patch.status,
+        isFeatured: patch.is_featured,
+        imageUrl: patch.image_url
       })
     });
 
@@ -189,6 +212,23 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
           />
         </label>
         <label className="space-y-1">
+          <span className="text-sm font-medium">SKU</span>
+          <input
+            value={sku}
+            onChange={(event) => setSku(event.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm font-medium">Image URL</span>
+          <input
+            type="url"
+            value={imageUrl}
+            onChange={(event) => setImageUrl(event.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="space-y-1">
           <span className="text-sm font-medium">Price (USD)</span>
           <input
             required
@@ -207,6 +247,10 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
             onChange={(event) => setInventoryQty(event.target.value)}
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           />
+        </label>
+        <label className="flex items-center gap-2 sm:col-span-2">
+          <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
+          <span className="text-sm font-medium">Featured product</span>
         </label>
         {error ? <p className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
         <button
@@ -240,8 +284,28 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
               visibleProducts.map((product) => (
                 <tr key={product.id} className="border-t border-border">
                   <td className="px-3 py-2">
-                    <p className="font-medium">{product.title}</p>
-                    <p className="text-xs text-muted-foreground">{product.description}</p>
+                    <div className="flex items-start gap-2">
+                      {product.image_url ? (
+                        <Image
+                          src={product.image_url}
+                          alt={`${product.title} preview`}
+                          width={40}
+                          height={40}
+                          unoptimized
+                          className="h-10 w-10 rounded-md border border-border object-cover"
+                        />
+                      ) : null}
+                      <div>
+                        <p className="font-medium">{product.title}</p>
+                        <p className="text-xs text-muted-foreground">{product.sku ? `SKU: ${product.sku}` : "No SKU"}</p>
+                        <p className="text-xs text-muted-foreground">{product.description}</p>
+                        {product.is_featured ? (
+                          <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            featured
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
                   </td>
                   <td className="px-3 py-2">
                     <select
@@ -293,6 +357,13 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
                         className="rounded-md border border-border px-3 py-1 text-xs font-medium"
                       >
                         +10 stock
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void updateProduct(product.id, { is_featured: !product.is_featured })}
+                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                      >
+                        {product.is_featured ? "Unfeature" : "Feature"}
                       </button>
                     </div>
                   </td>

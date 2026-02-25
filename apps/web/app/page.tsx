@@ -68,7 +68,7 @@ export default async function HomePage() {
         .maybeSingle(),
       supabase
         .from("products")
-        .select("id,title,description,price_cents,inventory_qty")
+        .select("id,title,description,image_url,price_cents,inventory_qty")
         .eq("store_id", store.id)
         .eq("status", "active")
         .order("created_at", { ascending: false })

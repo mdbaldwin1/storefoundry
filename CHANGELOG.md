@@ -47,3 +47,7 @@ All notable changes to this project will be documented in this file.
 - Expanded dashboard overview with KPIs, low-stock alerts, and recent-order summaries.
 - Expanded home/marketing page with differentiator value cards and pricing preview.
 - Upgraded storefront visual design with branding-driven theme tokens and richer trust/policy content.
+- Added product merchandising metadata (`sku`, `image_url`, `is_featured`) with dashboard controls and storefront image rendering.
+- Added store policy data model (`store_settings`) and dashboard editor for announcements, fulfillment messaging, support, shipping, and returns.
+- Added local domain-verification helper action in dashboard to support non-production domain workflow testing.
+- Added release-readiness checklist doc for QA, Stripe cutover, and operations signoff.

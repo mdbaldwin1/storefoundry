@@ -18,6 +18,9 @@ export type ProductRecord = {
   store_id: string;
   title: string;
   description: string;
+  sku: string | null;
+  image_url: string | null;
+  is_featured: boolean;
   price_cents: number;
   inventory_qty: number;
   status: ProductStatus;

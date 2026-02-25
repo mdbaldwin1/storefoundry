@@ -23,7 +23,7 @@ export default async function DashboardPage() {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id,title,description,price_cents,inventory_qty,status,created_at")
+    .select("id,title,description,sku,image_url,is_featured,price_cents,inventory_qty,status,created_at")
     .eq("store_id", store.id)
     .order("created_at", { ascending: false });
 

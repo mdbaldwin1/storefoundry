@@ -62,6 +62,27 @@ export function DomainManager({ initialDomains }: DomainManagerProps) {
     setDomains((current) => current.map((domain) => ({ ...domain, is_primary: domain.id === domainId })));
   }
 
+  async function markVerified(domainId: string) {
+    setError(null);
+
+    const response = await fetch("/api/stores/domains", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ domainId, verificationStatus: "verified" })
+    });
+
+    const payload = (await response.json()) as DomainResponse;
+
+    if (!response.ok || !payload.domain) {
+      setError(payload.error ?? "Unable to verify domain.");
+      return;
+    }
+
+    setDomains((current) =>
+      current.map((domain) => (domain.id === domainId ? { ...domain, verification_status: "verified" } : domain))
+    );
+  }
+
   async function removeDomain(domainId: string) {
     setError(null);
 
@@ -117,6 +138,11 @@ export function DomainManager({ initialDomains }: DomainManagerProps) {
               {!domain.is_primary ? (
                 <button type="button" onClick={() => void makePrimary(domain.id)} className="ml-auto rounded-md border border-border px-2 py-1 text-xs">
                   Set primary
+                </button>
+              ) : null}
+              {domain.verification_status !== "verified" ? (
+                <button type="button" onClick={() => void markVerified(domain.id)} className="rounded-md border border-border px-2 py-1 text-xs">
+                  Mark verified
                 </button>
               ) : null}
               <button type="button" onClick={() => void removeDomain(domain.id)} className="rounded-md border border-border px-2 py-1 text-xs">

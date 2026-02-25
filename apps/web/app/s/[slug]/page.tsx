@@ -44,7 +44,7 @@ export default async function StorefrontSlugPage({ params }: StorefrontRoutePara
       .maybeSingle(),
     supabase
       .from("products")
-      .select("id,title,description,price_cents,inventory_qty")
+      .select("id,title,description,image_url,price_cents,inventory_qty")
       .eq("store_id", store.id)
       .eq("status", "active")
       .order("created_at", { ascending: false })

@@ -44,6 +44,7 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 - Multi-tenant storefront rendering by subdomain or custom domain.
 - Merchant onboarding, auth, and protected dashboard.
 - Product catalog management with inventory controls and status workflows.
+- Product merchandising controls (SKU, featured flag, image URL).
 - Subscription plan management with configurable platform fees.
 - Domain management and branding controls.
 - Public storefront with cart, checkout, and policy/announcement content.

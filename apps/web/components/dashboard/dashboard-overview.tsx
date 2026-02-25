@@ -12,7 +12,10 @@ type DashboardOverviewProps = {
   } | null;
   recentOrders: Array<Pick<OrderRecord, "id" | "total_cents" | "status" | "created_at">>;
   products: Array<
-    Pick<ProductRecord, "id" | "title" | "description" | "price_cents" | "inventory_qty" | "status" | "created_at">
+    Pick<
+      ProductRecord,
+      "id" | "title" | "description" | "sku" | "image_url" | "is_featured" | "price_cents" | "inventory_qty" | "status" | "created_at"
+    >
   >;
 };
 

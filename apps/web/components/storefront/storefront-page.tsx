@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { buildStorefrontThemeStyle } from "@/lib/theme/storefront-theme";
 
 type StorefrontProduct = {
   id: string;
   title: string;
   description: string;
+  image_url: string | null;
   price_cents: number;
   inventory_qty: number;
 };
@@ -190,6 +192,16 @@ export function StorefrontPage({ store, branding, settings, products }: Storefro
             ) : (
               products.map((product) => (
                 <article key={product.id} className="space-y-3 rounded-md border border-border bg-card/80 p-4 shadow-sm">
+                  {product.image_url ? (
+                    <Image
+                      src={product.image_url}
+                      alt={`${product.title} image`}
+                      width={640}
+                      height={320}
+                      unoptimized
+                      className="h-40 w-full rounded-md border border-border object-cover"
+                    />
+                  ) : null}
                   <div>
                     <h3 className="font-semibold">{product.title}</h3>
                     <p className="text-sm text-muted-foreground">{product.description}</p>

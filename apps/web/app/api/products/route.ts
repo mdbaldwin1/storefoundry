@@ -5,6 +5,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 const createProductSchema = z.object({
   title: z.string().min(2),
   description: z.string().min(1),
+  sku: z.string().max(120).nullable().optional(),
+  imageUrl: z.string().url().nullable().optional(),
+  isFeatured: z.boolean().optional().default(false),
   priceCents: z.number().int().nonnegative(),
   inventoryQty: z.number().int().nonnegative().default(0)
 });
@@ -13,6 +16,9 @@ const updateProductSchema = z.object({
   productId: z.string().uuid(),
   title: z.string().min(2).optional(),
   description: z.string().min(1).optional(),
+  sku: z.string().max(120).nullable().optional(),
+  imageUrl: z.string().url().nullable().optional(),
+  isFeatured: z.boolean().optional(),
   priceCents: z.number().int().nonnegative().optional(),
   inventoryQty: z.number().int().nonnegative().optional(),
   status: z.enum(["draft", "active", "archived"]).optional()
@@ -56,7 +62,7 @@ export async function GET() {
 
   const { data, error } = await resolved.supabase
     .from("products")
-    .select("id,title,description,price_cents,inventory_qty,status")
+    .select("id,title,description,sku,image_url,is_featured,price_cents,inventory_qty,status")
     .eq("store_id", resolved.storeId)
     .order("created_at", { ascending: false });
 
@@ -87,11 +93,14 @@ export async function POST(request: NextRequest) {
       store_id: resolved.storeId,
       title: payload.data.title,
       description: payload.data.description,
+      sku: payload.data.sku ?? null,
+      image_url: payload.data.imageUrl ?? null,
+      is_featured: payload.data.isFeatured,
       price_cents: payload.data.priceCents,
       inventory_qty: payload.data.inventoryQty,
       status: "draft"
     })
-    .select("id,title,description,price_cents,inventory_qty,status,created_at")
+    .select("id,title,description,sku,image_url,is_featured,price_cents,inventory_qty,status,created_at")
     .single();
 
   if (error) {
@@ -118,6 +127,9 @@ export async function PATCH(request: NextRequest) {
 
   if (payload.data.title !== undefined) updates.title = payload.data.title;
   if (payload.data.description !== undefined) updates.description = payload.data.description;
+  if (payload.data.sku !== undefined) updates.sku = payload.data.sku;
+  if (payload.data.imageUrl !== undefined) updates.image_url = payload.data.imageUrl;
+  if (payload.data.isFeatured !== undefined) updates.is_featured = payload.data.isFeatured;
   if (payload.data.priceCents !== undefined) updates.price_cents = payload.data.priceCents;
   if (payload.data.inventoryQty !== undefined) updates.inventory_qty = payload.data.inventoryQty;
   if (payload.data.status !== undefined) updates.status = payload.data.status;
@@ -131,7 +143,7 @@ export async function PATCH(request: NextRequest) {
     .update(updates)
     .eq("id", payload.data.productId)
     .eq("store_id", resolved.storeId)
-    .select("id,title,description,price_cents,inventory_qty,status")
+    .select("id,title,description,sku,image_url,is_featured,price_cents,inventory_qty,status")
     .single();
 
   if (error) {
