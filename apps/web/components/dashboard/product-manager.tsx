@@ -151,6 +151,30 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
     );
   }
 
+  async function adjustInventory(productId: string, deltaQty: number, reason: "restock" | "adjustment", note?: string) {
+    setError(null);
+
+    const response = await fetch("/api/inventory/adjust", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, deltaQty, reason, note: note ?? null })
+    });
+
+    const payload = (await response.json()) as ProductResponse;
+
+    if (!response.ok || !payload.product) {
+      setError(payload.error ?? "Unable to adjust inventory.");
+      return;
+    }
+
+    setProducts((current) =>
+      current.map((product) => {
+        if (product.id !== productId) return product;
+        return payload.product!;
+      })
+    );
+  }
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -353,10 +377,17 @@ export function ProductManager({ initialProducts }: ProductManagerProps) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void updateProduct(product.id, { inventory_qty: product.inventory_qty + 10 })}
+                        onClick={() => void adjustInventory(product.id, 10, "restock", "Quick restock +10")}
                         className="rounded-md border border-border px-3 py-1 text-xs font-medium"
                       >
                         +10 stock
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void adjustInventory(product.id, -1, "adjustment", "Quick decrement -1")}
+                        className="rounded-md border border-border px-3 py-1 text-xs font-medium"
+                      >
+                        -1 stock
                       </button>
                       <button
                         type="button"

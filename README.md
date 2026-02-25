@@ -50,8 +50,10 @@ Storefoundry is a multi-tenant commerce platform for independent makers and smal
 - Domain management and branding controls.
 - Public storefront with cart, checkout, promo codes, policy/announcement content, and configurable content blocks.
 - Order operations with detail drill-down and status management.
+- CSV export for orders and reporting workflows.
 - Fulfillment workflow states (`unfulfilled`, `processing`, `fulfilled`, `shipped`).
 - Inventory movement ledger for post-sale auditability.
+- Manual inventory adjustment endpoint/UI that writes ledger events for restock/adjustment actions.
 
 ## Release notes before live Stripe
 

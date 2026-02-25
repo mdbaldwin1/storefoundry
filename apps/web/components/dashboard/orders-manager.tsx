@@ -48,6 +48,7 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
   const [orders, setOrders] = useState(initialOrders);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all");
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const totals = useMemo(() => {
@@ -99,10 +100,45 @@ export function OrdersManager({ initialOrders }: OrdersManagerProps) {
     setOrders((current) => current.map((order) => (order.id === orderId ? payload.order! : order)));
   }
 
+  async function exportOrdersCsv() {
+    setError(null);
+    setExporting(true);
+
+    const response = await fetch("/api/orders/export");
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({ error: "Unable to export orders." }))) as { error?: string };
+      setError(payload.error ?? "Unable to export orders.");
+      setExporting(false);
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "orders.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    setExporting(false);
+  }
+
   return (
     <section className="space-y-4 rounded-lg border border-border bg-card/80 p-6 shadow-sm backdrop-blur">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Orders</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-semibold">Orders</h1>
+          <button
+            type="button"
+            onClick={() => void exportOrdersCsv()}
+            disabled={exporting}
+            className="rounded-md border border-border px-3 py-2 text-xs font-medium disabled:opacity-60"
+          >
+            {exporting ? "Exporting..." : "Export CSV"}
+          </button>
+        </div>
         <label className="block max-w-52 space-y-1">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Filter status</span>
           <select

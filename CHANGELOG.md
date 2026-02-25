@@ -54,3 +54,5 @@ All notable changes to this project will be documented in this file.
 - Added promotions system (promo codes, percent/fixed discounts, limits, active windows) with dashboard management and checkout integration.
 - Added order fulfillment workflow fields and dashboard controls for `unfulfilled`, `processing`, `fulfilled`, and `shipped`.
 - Added configurable storefront content blocks with dashboard editor and public storefront rendering.
+- Added inventory adjustment API and dashboard actions that write explicit `restock`/`adjustment` ledger events.
+- Added orders CSV export endpoint and dashboard export control for merchant reporting workflows.

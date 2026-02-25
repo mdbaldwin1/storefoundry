@@ -9,6 +9,7 @@ This checklist is for the final release cut from `develop` to `main`.
 - [ ] Inventory movement ledger updates correctly for each completed order.
 - [ ] Promo code flow validated (valid, expired, inactive, redemption cap, min subtotal).
 - [ ] Fulfillment status transitions verified from dashboard for operational workflows.
+- [ ] Orders CSV export verified for accounting/reporting.
 - [ ] Custom domain add/remove and primary-domain workflow validated.
 - [ ] Store policies and announcement copy render correctly on storefront.
 - [ ] Storefront content blocks render and CTA links are correct.
